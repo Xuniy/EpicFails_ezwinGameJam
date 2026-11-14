@@ -5,11 +5,15 @@ extends Control
 
 @onready var player_bar: ProgressBar = $VBoxContainer/vieplayer
 @onready var coop_bar: ProgressBar = $VBoxContainer/viepoulailler
+@onready var compass = $Compass
 
 
 func _ready() -> void:
 	player_bar.max_value = player.max_health
 	coop_bar.max_value = poulailler.max_health
+
+	compass.player = player
+	compass.target = poulailler
 
 	update_health_bars()
 

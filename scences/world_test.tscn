@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://r4roffodcp2i" path="res://scripts/hud.gd" id="4_q6hbb"]
 [ext_resource type="Script" uid="uid://b8f2p80r0wnsy" path="res://scripts/label_temp.gd" id="5_lx0p1"]
 
+[ext_resource type="Script" path="res://scripts/compass.gd" id="6_compass"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w5pmr"]
 size = Vector2(34, 20)
 
@@ -77,3 +79,15 @@ grow_vertical = 0
 layout_mode = 2
 text = "TEST"
 script = ExtResource("5_lx0p1")
+
+[node name="Compass" type="Control" parent="UI_en_sah/HUD" unique_id=610473902]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_top = 16.0
+offset_right = -24.0
+offset_bottom = 88.0
+grow_horizontal = 0
+script = ExtResource("6_compass")
