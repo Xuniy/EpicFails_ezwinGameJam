@@ -12,7 +12,6 @@ func _ready() -> void:
 	player_bar.max_value = player.max_health
 	coop_bar.max_value = poulailler.max_health
 
-	compass.player = player
 	compass.target = poulailler
 
 	update_health_bars()
