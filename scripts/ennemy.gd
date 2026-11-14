@@ -1,5 +1,12 @@
 extends CharacterBody2D
 
+const ITEM_SCENE = preload("res://scences/item_au_sol.tscn")
+const ITEM_TYPES = ["grenade", "tp", "nuke"]
+const WALK_ANIMATIONS = [
+	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
+	&"walk_left", &"walk_up_left", &"walk_up", &"walk_up_right"
+]
+
 @export var speed: float = 80.0
 @export var health: float = 15.0
 @export var damage: float = 2.0
@@ -10,6 +17,7 @@ extends CharacterBody2D
 var is_attacking: bool = false
 
 @onready var attack_zone: Area2D = $attack_zone
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 # Le point à rejoindre au poulailler, donné par le spawner.
@@ -27,6 +35,7 @@ func _physics_process(_delta: float) -> void:
 	
 	if is_attacking:
 		velocity = Vector2.ZERO
+		animated_sprite.stop()
 		return
 	
 	var current_target: Node2D = default_target
@@ -36,6 +45,7 @@ func _physics_process(_delta: float) -> void:
 
 	if not is_instance_valid(current_target):
 		velocity = Vector2.ZERO
+		animated_sprite.stop()
 		return
 
 	var distance := global_position.distance_to(
@@ -47,6 +57,7 @@ func _physics_process(_delta: float) -> void:
 		return
 
 	var direction := global_position.direction_to(current_target.global_position)
+	update_animation(direction, true)
 	velocity = direction * speed
 	move_and_slide()
 	
@@ -57,6 +68,20 @@ func _physics_process(_delta: float) -> void:
 			attack(current_target)
 			break
 		
+func update_animation(direction: Vector2, moving: bool) -> void:
+	if direction.is_zero_approx():
+		animated_sprite.stop()
+		return
+
+	var sector := posmod(int(round(direction.angle() / (PI / 4.0))), 8)
+	var animation: StringName = WALK_ANIMATIONS[sector]
+	if moving:
+		animated_sprite.play(animation)
+	else:
+		animated_sprite.animation = animation
+		animated_sprite.stop()
+
+
 func focus_player(player: Node2D) -> void:
 	target = player
 	print("[Enemy] Joueur détecté : poursuite.")
@@ -71,11 +96,13 @@ func take_damage(amount: float) -> void:
 	health -= amount
 
 	if health <= 0.0:
+		drop_item()
 		queue_free()
 		
 func attack(victim: Node2D) -> void:
 	is_attacking = true
 	velocity = Vector2.ZERO
+	update_animation(global_position.direction_to(victim.global_position), false)
 
 	# Oriente le coup, puis garde cette direction.
 	attack_zone.global_rotation = global_position.direction_to(
@@ -93,3 +120,16 @@ func attack(victim: Node2D) -> void:
 
 	await get_tree().create_timer(attack_cooldown).timeout
 	is_attacking = false
+
+func drop_item() -> void:
+	var item = ITEM_SCENE.instantiate()
+	item.item_type = ITEM_TYPES.pick_random()
+
+	var world := get_tree().current_scene as Node2D
+
+	# Position de l'ennemi, convertie dans le repère du monde.
+	item.position = world.to_local(global_position)
+
+	# Ajout différé pour éviter de modifier les collisions
+	# pendant le traitement d'un impact de balle.
+	world.add_child.call_deferred(item)

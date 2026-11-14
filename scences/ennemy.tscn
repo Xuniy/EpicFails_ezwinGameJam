@@ -1,11 +1,12 @@
 [gd_scene format=3 uid="uid://dr5xbnqqqhwde"]
 
 [ext_resource type="Script" uid="uid://s3o7rsi75e24" path="res://scripts/ennemy.gd" id="1_ocao2"]
+[ext_resource type="SpriteFrames" uid="uid://eu6co6gistiv" path="res://assets/farmer_frames.tres" id="2_farmer"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_w5pmr"]
 
 [node name="ennemy" type="CharacterBody2D" unique_id=717207361]
-scale = Vector2(2, 2)
+scale = Vector2(3, 3)
 collision_layer = 2
 collision_mask = 3
 motion_mode = 1
@@ -18,3 +19,8 @@ shape = SubResource("CapsuleShape2D_w5pmr")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="attack_zone" unique_id=1864435041]
 polygon = PackedVector2Array(0, 0, 45, -45, 60, 0, 45, 45)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=729168796]
+texture_filter = 1
+sprite_frames = ExtResource("2_farmer")
+animation = &"walk_down"

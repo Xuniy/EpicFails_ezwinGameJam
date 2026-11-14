@@ -1,0 +1,79 @@
+extends Node2D
+
+@export_enum("grenade", "tp") var item_type: String = "grenade"
+@export var flight_time: float = 0.6
+@export var explosion_radius: float = 160.0
+@export var damage: float = 40.0
+
+var thrower: Node2D
+var start: Vector2
+var destination: Vector2
+var control: Vector2
+
+var elapsed: float = 0.0
+var finished: bool = false
+var exploded: bool = false
+
+
+func launch(origin: Vector2, target: Vector2, height: float) -> void:
+	start = origin
+	destination = target
+	control = (start + destination) * 0.5 + Vector2.UP * height
+	global_position = start
+
+
+func _physics_process(delta: float) -> void:
+	if finished:
+		return
+
+	elapsed += delta
+
+	var t := clampf(
+		elapsed / maxf(flight_time, 0.01),
+		0.0,
+		1.0
+	)
+
+	var first := start.lerp(control, t)
+	var second := control.lerp(destination, t)
+
+	global_position = first.lerp(second, t)
+
+	# Rotation visuelle pendant le lancer.
+	$Sprite2D.rotation += 8.0 * delta
+
+	if t >= 1.0:
+		land()
+
+
+func land() -> void:
+	finished = true
+
+	if item_type == "tp":
+		if is_instance_valid(thrower):
+			thrower.teleport_to(destination)
+
+		queue_free()
+		return
+
+	exploded = true
+	$Sprite2D.hide()
+
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if enemy.is_queued_for_deletion():
+			continue
+
+		if global_position.distance_to(enemy.global_position) <= explosion_radius:
+			enemy.take_damage(damage)
+
+	queue_redraw()
+	get_tree().create_timer(0.2).timeout.connect(queue_free)
+
+
+func _draw() -> void:
+	if exploded:
+		draw_circle(
+			Vector2.ZERO,
+			explosion_radius,
+			Color(1.0, 0.5, 0.1, 0.35)
+		)

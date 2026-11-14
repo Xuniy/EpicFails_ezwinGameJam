@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://cs5h51s1bxtrn"]
+
+[ext_resource type="Script" uid="uid://cy53sfahi6e21" path="res://scripts/item_au_sol.gd" id="1_jwmri"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_w5pmr"]
+
+[node name="item_au_sol" type="Area2D" unique_id=1216538836]
+script = ExtResource("1_jwmri")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1203190475]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=311216645]
+shape = SubResource("CircleShape2D_w5pmr")

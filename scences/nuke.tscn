@@ -1,0 +1,74 @@
+[gd_scene format=3 uid="uid://dwtasreugmad8"]
+
+[ext_resource type="Texture2D" uid="uid://dssmewck67gy0" path="res://assets/nuke_largage.png" id="1_gviix"]
+[ext_resource type="Script" uid="uid://d1cst8s5na2v5" path="res://scences/nuke.gd" id="1_hxvcg"]
+[ext_resource type="Texture2D" uid="uid://bsdvymtcup18r" path="res://assets/egg_bomba.png" id="2_i7b0b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8jlij"]
+atlas = ExtResource("1_gviix")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hxvcg"]
+atlas = ExtResource("1_gviix")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i7b0b"]
+atlas = ExtResource("1_gviix")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_35uht"]
+atlas = ExtResource("1_gviix")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i02lu"]
+atlas = ExtResource("1_gviix")
+region = Rect2(0, 128, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_w5pmr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8jlij")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hxvcg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i7b0b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_35uht")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i02lu")
+}],
+"loop": 1,
+"name": &"nuke_largage",
+"speed": 1.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_w5pmr"]
+radius = 250.04999
+
+[node name="nuke" type="Node2D" unique_id=1611035271]
+script = ExtResource("1_hxvcg")
+
+[node name="egg_bomba" type="Sprite2D" parent="." unique_id=260393424]
+texture_filter = 1
+rotation = 1.5707964
+scale = Vector2(3, 3)
+texture = ExtResource("2_i7b0b")
+
+[node name="zone_largage" type="AnimatedSprite2D" parent="." unique_id=1288019809]
+texture_filter = 1
+scale = Vector2(15, 15)
+sprite_frames = SubResource("SpriteFrames_w5pmr")
+animation = &"nuke_largage"
+frame_progress = 0.9004957
+
+[node name="explosion_zone" type="Area2D" parent="." unique_id=1756187596]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="explosion_zone" unique_id=674404291]
+shape = SubResource("CircleShape2D_w5pmr")
