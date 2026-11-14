@@ -1,0 +1,288 @@
+[gd_scene format=3 uid="uid://b3b1bju1xc1j6"]
+
+[ext_resource type="Script" uid="uid://dr78rlqr8epy" path="res://scripts/player.gd" id="1_0s3u6"]
+[ext_resource type="Script" uid="uid://4j6dh1si7gst" path="res://scripts/weapon_player.gd" id="2_qm0ti"]
+[ext_resource type="Texture2D" uid="uid://b4jxs14ps5bmq" path="res://assets/hen_down_sheet.png" id="3_hen_down"]
+[ext_resource type="Texture2D" uid="uid://cq41cxtomh674" path="res://assets/hen_down_right_sheet.png" id="3_hen_down_right"]
+[ext_resource type="Texture2D" uid="uid://bflpwtr2csrn4" path="res://assets/hen_left_sheet.png" id="3_hen_left"]
+[ext_resource type="Texture2D" uid="uid://b16f4ttpwhbs0" path="res://assets/hen_up_sheet.png" id="3_hen_up"]
+[ext_resource type="Texture2D" uid="uid://bj3ku2onqeqxl" path="res://assets/hen_up_left_sheet.png" id="3_hen_up_left"]
+[ext_resource type="Texture2D" uid="uid://faptafghmyyb" path="res://assets/hen_up_right_sheet.png" id="3_hen_up_right"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0pf81"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_fhbv5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0pf81"]
+radius = 264.0019
+
+[sub_resource type="AtlasTexture" id="Atlas_down_0"]
+atlas = ExtResource("3_hen_down")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_1"]
+atlas = ExtResource("3_hen_down")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_2"]
+atlas = ExtResource("3_hen_down")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_3"]
+atlas = ExtResource("3_hen_down")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_right_0"]
+atlas = ExtResource("3_hen_down_right")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_right_1"]
+atlas = ExtResource("3_hen_down_right")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_right_2"]
+atlas = ExtResource("3_hen_down_right")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_down_right_3"]
+atlas = ExtResource("3_hen_down_right")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_left_0"]
+atlas = ExtResource("3_hen_left")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_left_1"]
+atlas = ExtResource("3_hen_left")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_left_2"]
+atlas = ExtResource("3_hen_left")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_left_3"]
+atlas = ExtResource("3_hen_left")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_0"]
+atlas = ExtResource("3_hen_up")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_1"]
+atlas = ExtResource("3_hen_up")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_2"]
+atlas = ExtResource("3_hen_up")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_3"]
+atlas = ExtResource("3_hen_up")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_left_0"]
+atlas = ExtResource("3_hen_up_left")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_left_1"]
+atlas = ExtResource("3_hen_up_left")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_left_2"]
+atlas = ExtResource("3_hen_up_left")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_left_3"]
+atlas = ExtResource("3_hen_up_left")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_right_0"]
+atlas = ExtResource("3_hen_up_right")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_right_1"]
+atlas = ExtResource("3_hen_up_right")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_right_2"]
+atlas = ExtResource("3_hen_up_right")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_up_right_3"]
+atlas = ExtResource("3_hen_up_right")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_down_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_3")
+}],
+"loop": 1,
+"name": &"walk_down",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_3")
+}],
+"loop": 1,
+"name": &"walk_down_left",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_down_right_3")
+}],
+"loop": 1,
+"name": &"walk_down_right",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_left_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_3")
+}],
+"loop": 1,
+"name": &"walk_left",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_left_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_left_3")
+}],
+"loop": 1,
+"name": &"walk_right",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_up_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_3")
+}],
+"loop": 1,
+"name": &"walk_up",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_up_left_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_left_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_left_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_left_3")
+}],
+"loop": 1,
+"name": &"walk_up_left",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_up_right_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_right_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_right_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_up_right_3")
+}],
+"loop": 1,
+"name": &"walk_up_right",
+"speed": 8.0
+}]
+
+[node name="Player" type="CharacterBody2D" unique_id=762445141]
+scale = Vector2(2, 2)
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_0s3u6")
+
+[node name="player_collision" type="CollisionShape2D" parent="." unique_id=2004457516]
+shape = SubResource("CapsuleShape2D_0pf81")
+
+[node name="Weapon" type="Node2D" parent="." unique_id=878970548]
+script = ExtResource("2_qm0ti")
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Weapon" unique_id=695800614]
+position = Vector2(11.25, -0.99999994)
+scale = Vector2(23.5, 1.9999999)
+mesh = SubResource("BoxMesh_fhbv5")
+
+[node name="Sortie_balle" type="Marker2D" parent="Weapon" unique_id=479234884]
+position = Vector2(23, -1)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1333814857]
+
+[node name="detection_ennemy" type="Area2D" parent="." unique_id=1084458987]
+visibility_layer = 2
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="detection_ennemy" unique_id=145917632]
+shape = SubResource("CircleShape2D_0pf81")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1380170452]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_player")
+animation = &"walk_right"
+frame_progress = 0.77481776

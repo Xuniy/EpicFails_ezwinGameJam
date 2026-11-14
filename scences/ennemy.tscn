@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://dr5xbnqqqhwde"]
+
+[ext_resource type="Script" uid="uid://s3o7rsi75e24" path="res://scripts/ennemy.gd" id="1_ocao2"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_w5pmr"]
+
+[node name="ennemy" type="CharacterBody2D" unique_id=717207361]
+scale = Vector2(2, 2)
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_ocao2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2104585815]
+shape = SubResource("CapsuleShape2D_w5pmr")
+
+[node name="attack_zone" type="Area2D" parent="." unique_id=1248463537]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="attack_zone" unique_id=1864435041]
+polygon = PackedVector2Array(0, 0, 45, -45, 60, 0, 45, 45)

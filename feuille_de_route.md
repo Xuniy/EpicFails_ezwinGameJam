@@ -24,7 +24,41 @@ Stamina Weed
 
 
 Plusieurs ennemis:
--renards
+
+-renards ()
+-fermier ()
 -Go Muscu
--fermier
+
+
+
+
+
 -le lapin pour les oeufs pour pâques.
+
+
+
+
+Collision Layer.
+1 : Player Ennemies
+2 : Detection ennemy par player
+
+
+Bien cliquez pour réussir à prendre le taf
+
+
+
+Menu d'items
+
+
+Vie du poulailler
+Vie du joueur
+
+
+
+
+Stamina Weed
+
+
+Item récup :
+frappe
+TP oeufs
