@@ -19,7 +19,7 @@ const EMBER_COLUMN: float = 25.0
 const EMBER_WIDTH: float = 7.0             # 32 - EMBER_COLUMN
 const SMOKE_FRAME_SIZE: int = 8
 # Dans chaque image de fume.png, la fumée occupe les colonnes 0 à 3 : son centre est en colonne 2.
-const SMOKE_CONTENT_CENTER: float = 2.0
+const SMOKE_CONTENT_CENTER: float = 0.0
 const SMOKE_FRAME_COUNT: int = 6
 const SMOKE_FPS: float = 5.0
 

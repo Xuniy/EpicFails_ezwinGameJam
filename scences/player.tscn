@@ -411,8 +411,11 @@ script = ExtResource("2_mllt6")
 position = Vector2(0, 4)
 script = ExtResource("2_qm0ti")
 
-[node name="Sortie_balle" type="Marker2D" parent="Weapon" unique_id=479234884]
-position = Vector2(23, -1)
+[node name="Sortie_balle_1" type="Marker2D" parent="Weapon" unique_id=479234884]
+position = Vector2(26, 2.5)
+
+[node name="Sortie_balle_2" type="Marker2D" parent="Weapon" unique_id=1096116368]
+position = Vector2(26, -0.5)
 
 [node name="arme_qui_tire" type="AnimatedSprite2D" parent="Weapon" unique_id=151275434]
 visible = false
@@ -421,6 +424,7 @@ position = Vector2(9, 1)
 rotation = 3.1415927
 scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("SpriteFrames_0pf81")
+flip_v = true
 
 [node name="arme_tire_pas" type="Sprite2D" parent="Weapon" unique_id=1067948928]
 texture_filter = 1
