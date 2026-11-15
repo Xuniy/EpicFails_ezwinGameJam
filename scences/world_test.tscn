@@ -16,6 +16,10 @@
 [ext_resource type="Texture2D" path="res://assets/Health_03.png" id="10_frame_coop"]
 [ext_resource type="Texture2D" path="res://assets/Health_04_Bar02.png" id="11_fill_coop"]
 
+[ext_resource type="Script" path="res://scripts/joint_bar.gd" id="13_joint"]
+[ext_resource type="Texture2D" path="res://assets/joint_bar.png" id="14_joint_tex"]
+[ext_resource type="Texture2D" path="res://assets/fume.png" id="15_fume_tex"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w5pmr"]
 size = Vector2(34, 20)
 
@@ -105,3 +109,18 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_compass")
+
+[node name="JointBar" type="Control" parent="UI_en_sah/HUD" unique_id=905112376]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -90.0
+offset_right = 160.0
+offset_bottom = -16.0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("13_joint")
+joint_texture = ExtResource("14_joint_tex")
+smoke_texture = ExtResource("15_fume_tex")
