@@ -132,8 +132,11 @@ func cycle_item(step: int) -> void:
 	selected_index = posmod(selected_index + step, item_order.size())
 
 
-# Clic droit maintenu : l'arc suit la souris ; relâché : l'item est lancé.
+# Clic droit maintenu : lance-pierre. La souris tirée d'un côté envoie l'item du côté opposé ;
+# plus la traction est longue, plus il va loin.
 var mouse_throw_item: String = ""
+var mouse_throw_anchor := Vector2.ZERO
+@export var sling_power: float = 1.0
 
 
 func is_item_aiming() -> bool:
@@ -145,14 +148,26 @@ func start_mouse_throw() -> void:
 		print("Aucun exemplaire de : ", selected_item)
 		return
 	mouse_throw_item = selected_item
+	mouse_throw_anchor = get_global_mouse_position()
+
+
+# Point visé par le lance-pierre, selon la position actuelle de la souris.
+func get_sling_target() -> Vector2:
+	var origin := item_aim.global_position
+	var pull := get_global_mouse_position() - mouse_throw_anchor
+	if pull.length() < 1.0:
+		return origin
+	var distance := minf(pull.length() * sling_power, item_aim.max_distance)
+	return origin - pull.normalized() * distance
 
 
 func release_mouse_throw() -> void:
 	if mouse_throw_item == "":
 		return
 	var item := mouse_throw_item
+	var target := get_sling_target()
 	mouse_throw_item = ""
-	use_item_at(item, item_aim.global_position + item_aim.aim_direction * item_aim.distance)
+	use_item_at(item, target)
 
 
 func _on_enemy_entered(body: Node2D) -> void:
@@ -170,7 +185,7 @@ func _process(_delta: float) -> void:
 
 	update_camera_zoom(
 		target,
-		Input.is_action_pressed("use_item")
+		is_item_aiming()
 	)
 	
 
