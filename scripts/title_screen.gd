@@ -3,7 +3,7 @@ extends Control
 ## Écran d'accueil : nom du jeu et Play. Le type d'appareil est mémorisé dans GameState :
 ## un clic (ou une touche) = clavier/souris, le bouton A d'une manette = Xbox.
 
-const GAME_SCENE := "res://scences/world_test.tscn"
+const NEXT_SCENE := "res://scences/tutorial_screen.tscn"
 const TITLE_FONT_SIZE: int = 56
 const BUTTON_FONT_SIZE: int = 32
 
@@ -54,4 +54,4 @@ func _input(event: InputEvent) -> void:
 func _on_play_pressed() -> void:
 	GameState.input_device = detected_device if detected_device != "" else GameState.DEVICE_KEYBOARD_MOUSE
 	GameState.game_over = false
-	get_tree().change_scene_to_file(GAME_SCENE)
+	get_tree().change_scene_to_file(NEXT_SCENE)
