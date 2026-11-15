@@ -1,7 +1,7 @@
 class_name TutorialOverlay
 extends CanvasLayer
 
-## Tutoriel scénarisé en jeu, guidé par Maître Coq. Pas de coroutines : une file d'entrées
+## Tutoriel scénarisé en jeu, guidé par Maître Linus. Pas de coroutines : une file d'entrées
 ## traitée dans _process, qui s'arrête proprement si la scène change.
 ## Une bulle ne bloque pas le jeu, sauf les répliques d'introduction. Une étape déjà
 ## accomplie est sautée, bulle comprise.
