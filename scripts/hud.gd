@@ -7,8 +7,6 @@ extends Control
 const JOINT_SIZE := Vector2(144, 130)
 const MARGIN: float = 16.0
 const GAP: float = 12.0
-const RHYTHM_WIDTH: float = 420.0
-const RHYTHM_HEIGHT: float = 70.0
 # Joint à 0 : le joueur perd ce montant de vie, à cet intervalle, tant que le joint est vide.
 const EMPTY_JOINT_DAMAGE: float = 5.0
 const EMPTY_JOINT_INTERVAL: float = 2.0
@@ -21,6 +19,7 @@ const EMPTY_JOINT_INTERVAL: float = 2.0
 @onready var player_bar: HealthBar = $PlayerHealth/vieplayer
 @onready var coop_bar: HealthBar = $CoopHealth/viepoulailler
 @onready var joint_bar = $JointBar
+@onready var rhythm: RhythmGame = $RhythmGame
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
 @onready var blood_overlay: TextureRect = $Sang
@@ -40,7 +39,7 @@ func _ready() -> void:
 	blood_overlay.modulate.a = 0.0
 
 	_layout_hud()
-	_add_rhythm_game()
+	rhythm.perfect_achieved.connect(player.activate_perfect_bonus)
 
 	update_health_bars()
 
@@ -99,16 +98,3 @@ func _layout_hud() -> void:
 	coop_health_box.offset_right = coop_health_box.size.x * 0.5
 	coop_health_box.offset_top = MARGIN
 	coop_health_box.offset_bottom = MARGIN + coop_health_box.size.y
-
-
-# Mini-jeu de rythme à côté de la barre de joint.
-func _add_rhythm_game() -> void:
-	var rhythm := RhythmGame.new()
-	rhythm.joint = joint_bar
-	rhythm.size = Vector2(RHYTHM_WIDTH, RHYTHM_HEIGHT)
-	add_child(rhythm)
-	rhythm.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	rhythm.offset_left = MARGIN
-	rhythm.offset_right = MARGIN + RHYTHM_WIDTH
-	rhythm.offset_top = -MARGIN - JOINT_SIZE.y - GAP - RHYTHM_HEIGHT
-	rhythm.offset_bottom = -MARGIN - JOINT_SIZE.y - GAP

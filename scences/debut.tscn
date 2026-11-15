@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://2mo7jdkcofh1"]
+
+[ext_resource type="Texture2D" uid="uid://cqwpulymk7gwu" path="res://assets/eggceptional.png" id="1_title"]
+[ext_resource type="Texture2D" uid="uid://cc0pu5buaumui" path="res://assets/chicken_norris.png" id="2_name"]
+[ext_resource type="Texture2D" uid="uid://cx1pnet6x5bvr" path="res://assets/buttons/button_a.png" id="3_6d4rj"]
+
+[node name="StartScreen" type="CanvasLayer" unique_id=1634253596]
+layer = 20
+
+[node name="Root" type="Control" parent="." unique_id=818325093]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dessins" type="Control" parent="Root" unique_id=16132724]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.35
+anchor_right = 0.5
+anchor_bottom = 0.35
+mouse_filter = 2
+
+[node name="ChickenNorris" type="Sprite2D" parent="Root/Dessins" unique_id=918207730]
+texture_filter = 1
+position = Vector2(196, 161.20001)
+scale = Vector2(2, 2)
+texture = ExtResource("2_name")
+
+[node name="eggceptionnal" type="Sprite2D" parent="Root/Dessins" unique_id=771805892]
+texture_filter = 1
+position = Vector2(-274, -60.800003)
+rotation = -0.31764993
+scale = Vector2(2, 2)
+texture = ExtResource("1_title")
+
+[node name="Commencer" type="Button" parent="Root" unique_id=1849979459]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.75
+anchor_right = 0.5
+anchor_bottom = 0.75
+offset_left = -182.0
+offset_top = 27.0
+offset_right = 98.0
+offset_bottom = 91.0
+theme_override_font_sizes/font_size = 32
+text = "Commencer"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=442351949]
+position = Vector2(653, 547)
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("3_6d4rj")

@@ -1,5 +1,9 @@
+@tool
 class_name RhythmGame
 extends Control
+
+signal hit_succeeded
+signal perfect_achieved
 
 ## Mini-jeu de rythme pour fumer : une seule ligne horizontale. Les boutons arrivent
 ## vers la cible ; une bonne touche au bon moment ajoute 5 s au joint (plafonné à sa durée).
@@ -14,12 +18,37 @@ class NoteData:
 
 @export var joint: JointBar
 
+@export_group("Aperçu dans l'éditeur")
+@export var editor_preview: bool = true:
+	set(value):
+		editor_preview = value
+		queue_redraw()
+@export_enum("Clavier", "Manette") var preview_device: int = 0:
+	set(value):
+		preview_device = value
+		queue_redraw()
+@export var fit_frame_to_size: bool = true:
+	set(value):
+		fit_frame_to_size = value
+		if is_node_ready():
+			_layout_frame()
+
+@export_group("Rythme")
+@export_range(4, 64, 1) var note_count: int = NOTE_COUNT
+@export_range(0.25, 2.0, 0.05) var note_interval: float = NOTE_STEP
+@export_range(0.02, 0.3, 0.01) var hit_window: float = HIT_WINDOW
+@export_range(80.0, 600.0, 10.0) var note_speed: float = NOTE_SPEED
+@export_range(0.5, 5.0, 0.1) var start_delay: float = START_DELAY
+@export_range(0.5, 10.0, 0.5) var seconds_per_hit: float = SECONDS_PER_HIT
+
 const SUCCESS_SOUND = preload("res://sounds/inspire_bien.wav")
 const FAILURE_SOUND = preload("res://sounds/inspire_joint_mal.wav")
 const FULL_SOUND = preload("res://sounds/join_full.wav")
 
-var joint_sound: AudioStreamPlayer
-var full_sound: AudioStreamPlayer
+@onready var joint_sound: AudioStreamPlayer = $SonJoint
+@onready var full_sound: AudioStreamPlayer = $SonJointPlein
+@onready var frame_sprite: Sprite2D = $Encadrement
+@onready var target_marker: Marker2D = $Cible
 
 const BUTTON_TEXTURES := [
 	preload("res://assets/buttons/button_y.png"),
@@ -32,14 +61,13 @@ const LANE_BUTTONS := [JOY_BUTTON_Y, JOY_BUTTON_X, JOY_BUTTON_A, JOY_BUTTON_B]
 const START_BUTTON: int = JOY_BUTTON_DPAD_UP
 const START_KEY: Key = KEY_A
 const KEY_LANES := [KEY_1, KEY_2, KEY_3, KEY_4]
+const KEYPAD_LANES := [KEY_KP_1, KEY_KP_2, KEY_KP_3, KEY_KP_4]
 const KEY_LABELS := ["1", "2", "3", "4"]
 const NOTE_COUNT: int = 16
 const NOTE_STEP: float = 0.6
 const START_DELAY: float = 1.5
 const HIT_WINDOW: float = 0.12
-const NOTE_SPEED: float = 220.0   # px par seconde, de droite à gauche
-const TARGET_X: float = 90.0      # position horizontale de la cible
-const LINE_Y_RATIO: float = 0.6
+const NOTE_SPEED: float = 200.0   # px par seconde, de droite à gauche
 const BUTTON_SIZE: float = 14.0
 const NOTE_SCALE: float = 2.0
 const SECONDS_PER_HIT: float = 5.0
@@ -53,29 +81,39 @@ var amount_at_start: float = 0.0
 var result_timer: float = 0.0
 var result_text: String = ""
 var using_gamepad: bool = false
+var successful_notes: int = 0
+var wrong_inputs: int = 0
 
 
 func _ready() -> void:
-	joint_sound = AudioStreamPlayer.new()
-	joint_sound.name = "SonJoint"
-	add_child(joint_sound)
-	full_sound = AudioStreamPlayer.new()
-	full_sound.name = "SonJointPlein"
-	full_sound.stream = FULL_SOUND
-	add_child(full_sound)
+	resized.connect(_layout_frame)
+	_layout_frame()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if Engine.is_editor_hint():
+		set_process_unhandled_input(false)
+		queue_redraw()
+		return
 	using_gamepad = not Input.get_connected_joypads().is_empty()
 	visible = false
 
 
+func _layout_frame() -> void:
+	if fit_frame_to_size and is_instance_valid(frame_sprite) and frame_sprite.texture != null:
+		frame_sprite.scale = size / frame_sprite.texture.get_size()
+	queue_redraw()
+
+
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		queue_redraw()
+		return
 	if active:
 		song_time += delta
 		for note in notes:
-			if note.state == 0 and song_time > note.time + HIT_WINDOW:
+			if note.state == 0 and song_time > note.time + hit_window:
 				note.state = 2
-		if song_time > notes.back().time + HIT_WINDOW + 0.3:
+		if song_time > notes.back().time + hit_window + 0.3:
 			_finish()
 	elif result_timer > 0.0:
 		result_timer -= delta
@@ -85,6 +123,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if Engine.is_editor_hint():
+		return
 	var is_start := false
 	var lane := -1
 	if event is InputEventJoypadButton:
@@ -100,7 +140,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		using_gamepad = false
 		is_start = key.keycode == START_KEY
-		lane = KEY_LANES.find(key.keycode)
+		# La rangée 1–4 fonctionne aussi sur AZERTY, sans maintenir Maj.
+		lane = KEY_LANES.find(key.physical_keycode)
+		if lane == -1:
+			lane = KEY_LANES.find(key.keycode)
+		if lane == -1:
+			lane = KEYPAD_LANES.find(key.keycode)
+		if lane == -1:
+			lane = KEYPAD_LANES.find(key.physical_keycode)
 	else:
 		return
 
@@ -118,13 +165,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _start() -> void:
+	successful_notes = 0
+	wrong_inputs = 0
 	notes.clear()
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
-	for i in NOTE_COUNT:
+	for i in note_count:
 		var note := NoteData.new()
 		note.lane = rng.randi_range(0, LANE_BUTTONS.size() - 1)
-		note.time = START_DELAY + i * NOTE_STEP
+		note.time = start_delay + i * note_interval
 		note.state = 0
 		notes.append(note)
 	amount_at_start = joint.amount
@@ -135,9 +184,11 @@ func _start() -> void:
 
 
 func _try_hit(lane: int) -> void:
+	if not active:
+		return
 	# Bonne touche dans la fenêtre de temps : son réussi ; sinon, son raté.
 	var best: NoteData = null
-	var best_dt: float = HIT_WINDOW
+	var best_dt: float = hit_window
 	for note in notes:
 		if note.state != 0 or note.lane != lane:
 			continue
@@ -146,17 +197,22 @@ func _try_hit(lane: int) -> void:
 			best = note
 			best_dt = dt
 	if best == null:
+		wrong_inputs += 1
 		_play_joint_sound(FAILURE_SOUND)
 		return
 
 	best.state = 1
+	successful_notes += 1
 	_play_joint_sound(SUCCESS_SOUND)
 	# 5 secondes sur la durée du joint (plafonné à 100 %).
-	joint.amount = minf(1.0, joint.amount + SECONDS_PER_HIT / joint.duration)
-	# Joint plein : le mini-jeu se ferme tout seul.
-	if joint.amount >= 1.0:
+	var previous_amount: float = joint.amount
+	joint.amount = minf(1.0, joint.amount + seconds_per_hit / joint.duration)
+	if previous_amount < 1.0 and joint.amount >= 1.0:
 		full_sound.play()
-		_close()
+	hit_succeeded.emit()
+	# La série continue à joint plein : un perfect exige toutes les notes.
+	if successful_notes == note_count:
+		_finish()
 
 
 func _play_joint_sound(stream: AudioStream) -> void:
@@ -172,10 +228,15 @@ func _close() -> void:
 
 
 func _finish() -> void:
+	if not active:
+		return
 	active = false
 	var gained: float = (joint.amount - amount_at_start) * joint.duration
 	result_text = "Fumé : +%d s" % roundi(gained)
 	result_timer = RESULT_DURATION
+	if successful_notes == note_count and wrong_inputs == 0:
+		result_text = "PERFECT ! Vitesse + invincibilité : 10 s"
+		perfect_achieved.emit()
 
 
 # Touche clavier dessinée dans un petit carré, à la place de l'icône manette.
@@ -186,32 +247,36 @@ func _draw_key_label(rect: Rect2, label: String, font: Font) -> void:
 
 
 func _draw() -> void:
+	if not is_instance_valid(target_marker):
+		return
+	var preview := Engine.is_editor_hint() and editor_preview
 	var font: Font = get_theme_default_font()
 	var panel := Rect2(Vector2.ZERO, size)
 
-	if active:
-		draw_rect(panel, Color(0, 0, 0, 0.75))
-		draw_rect(panel, Color.WHITE, false, 2.0)
-		draw_string(
-			font,
-			Vector2(TARGET_X - 40.0, 30.0),
-			"FUME ! Appuie au bon moment",
-			HORIZONTAL_ALIGNMENT_LEFT,
-			size.x - 60.0,
-			FONT_SIZE,
-			Color.WHITE
-		)
+	if active or preview:
+		draw_rect(panel.grow(-12.0), Color(0, 0, 0, 0.65))
 
-		var line_y: float = size.y * LINE_Y_RATIO
+		var line_y: float = target_marker.position.y
+		var target_x: float = target_marker.position.x
 		var icon: float = BUTTON_SIZE * NOTE_SCALE
-		draw_line(Vector2(TARGET_X - 40.0, line_y), Vector2(size.x - 12.0, line_y), Color.WHITE, 2.0)
-		draw_arc(Vector2(TARGET_X, line_y), icon * 0.6, 0.0, TAU, 32, Color(1, 1, 1, 0.6), 2.0)
+		draw_line(Vector2(maxf(24.0, target_x - 40.0), line_y), Vector2(size.x - 24.0, line_y), Color.WHITE, 2.0)
+		draw_arc(Vector2(target_x, line_y), icon * 0.6, 0.0, TAU, 32, Color(1, 1, 1, 0.6), 2.0)
+
+		if preview:
+			for lane in range(4):
+				var x := lerpf(target_x + icon, size.x - 24.0 - icon * 0.5, (lane + 0.5) / 4.0)
+				var rect := Rect2(Vector2(x - icon * 0.5, line_y - icon * 0.5), Vector2.ONE * icon)
+				if preview_device == 1:
+					draw_texture_rect(BUTTON_TEXTURES[lane], rect, false)
+				else:
+					_draw_key_label(rect, KEY_LABELS[lane], font)
+			return
 
 		for note in notes:
 			if note.state != 0:
 				continue
-			var x: float = TARGET_X + (note.time - song_time) * NOTE_SPEED
-			if x < -icon or x > size.x + icon:
+			var x: float = target_x + (note.time - song_time) * note_speed
+			if x < 24.0 + icon * 0.5 or x > size.x - 24.0 - icon * 0.5:
 				continue
 			var rect := Rect2(x - icon * 0.5, line_y - icon * 0.5, icon, icon)
 			if using_gamepad:
@@ -220,14 +285,13 @@ func _draw() -> void:
 				_draw_key_label(rect, KEY_LABELS[note.lane], font)
 
 	elif result_timer > 0.0:
-		draw_rect(panel, Color(0, 0, 0, 0.75))
-		draw_rect(panel, Color.WHITE, false, 2.0)
+		draw_rect(panel.grow(-12.0), Color(0, 0, 0, 0.65))
 		draw_string(
 			font,
-			Vector2(0.0, size.y * 0.6),
+			Vector2(24.0, size.y * 0.6),
 			result_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
-			size.x,
-			FONT_SIZE,
+			size.x - 48.0,
+			16 if result_text.begins_with("PERFECT") else FONT_SIZE,
 			Color.WHITE
 		)

@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://dmbj3jswfpb7f" path="res://assets/joint_bar.png" id="14_joint_tex"]
 [ext_resource type="Texture2D" uid="uid://cft18d54dkn6u" path="res://assets/fume.png" id="15_fume_tex"]
 [ext_resource type="Texture2D" uid="uid://cjxwljw7w8c06" path="res://assets/effect_sang.png" id="16_sang"]
+[ext_resource type="PackedScene" path="res://scences/rhythm_game.tscn" id="17_rhythm"]
 
 [node name="world_test" type="Node2D" unique_id=1240984361]
 y_sort_enabled = true
@@ -38,6 +39,7 @@ wait_time = 2.0
 autostart = true
 
 [node name="UI_en_sah" type="CanvasLayer" parent="." unique_id=322775224]
+layer = 2
 
 [node name="HUD" type="Control" parent="UI_en_sah" unique_id=1396388679]
 layout_mode = 3
@@ -121,6 +123,20 @@ mouse_filter = 2
 script = ExtResource("13_joint")
 joint_texture = ExtResource("14_joint_tex")
 smoke_texture = ExtResource("15_fume_tex")
+
+[node name="RhythmGame" parent="UI_en_sah/HUD" unique_id=582310348 node_paths=PackedStringArray("joint") instance=ExtResource("17_rhythm")]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -210.0
+offset_top = -228.0
+offset_right = 210.0
+offset_bottom = -158.0
+joint = NodePath("../JointBar")
+note_speed = 220.0
 
 [node name="FarmTilemap" parent="." unique_id=1617969760 instance=ExtResource("6_tavpr")]
 

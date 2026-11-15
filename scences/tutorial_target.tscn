@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial_target.gd" id="1_target"]
+[ext_resource type="SpriteFrames" path="res://assets/farmer_frames.tres" id="2_farmer"]
+[ext_resource type="Texture2D" path="res://assets/ombre.svg" id="3_shadow"]
+
+[sub_resource type="CapsuleShape2D" id="Shape_target"]
+
+[node name="TrainingTarget" type="StaticBody2D" groups=["enemies"]]
+process_mode = 1
+scale = Vector2(3, 3)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_target")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+position = Vector2(0, 14)
+z_index = -2
+self_modulate = Color(0, 0, 0, 0.3)
+texture = ExtResource("3_shadow")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = ExtResource("2_farmer")
+animation = &"walk_down"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape_target")

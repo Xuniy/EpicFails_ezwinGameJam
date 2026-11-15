@@ -25,6 +25,7 @@ const SMOKE_FPS: float = 5.0
 
 ## 1.0 = joint entier, 0.0 = entièrement consumé.
 var amount: float = 1.0
+var consumption_paused: bool = false
 var smoke: AnimatedSprite2D
 
 
@@ -56,7 +57,7 @@ func _build_smoke_frames() -> SpriteFrames:
 
 
 func _process(delta: float) -> void:
-	if duration > 0.0:
+	if duration > 0.0 and not consumption_paused:
 		amount = maxf(0.0, amount - delta / duration)
 
 	_update_smoke()

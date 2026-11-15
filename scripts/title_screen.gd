@@ -1,63 +1,94 @@
-extends Control
+extends Node
 
-## Écran d'accueil : nom du jeu et Play. Le type d'appareil est mémorisé dans GameState :
-## un clic (ou une touche) = clavier/souris, le bouton A d'une manette = Xbox.
-## Le bouton A lance directement la partie, sans dépendre du focus du bouton.
+## Gros plan d'introduction : le monde reste figé, seule la fumée est animée.
+@export var intro_zoom_multiplier: float = 4.0
+@export var dezoom_duration: float = 1.2
 
-const TITLE_FONT_SIZE: int = 56
-const BUTTON_FONT_SIZE: int = 32
-
-var detected_device: String = ""
-var play_button: Button
 var _starting: bool = false
+var _finished: bool = false
+var _normal_zoom: Vector2
+var _smoke_process_mode: Node.ProcessMode
+var player
+var camera: Camera2D
+var hud: CanvasLayer
+var smoke: AnimatedSprite2D
+@onready var start_screen: CanvasLayer = $StartScreen
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var start_button: Button = start_screen.get_node("Root/Commencer")
+	start_button.pressed.connect(_start_game)
+	start_button.grab_focus()
+	var world := get_parent()
+	player = world.get_node("Player")
+	camera = player.get_node("Camera2D")
+	hud = world.get_node("UI_en_sah")
+	smoke = player.get_node("AnimatedSprite2DFumee")
+	_normal_zoom = player.normal_zoom
+	_smoke_process_mode = smoke.process_mode
 
-	var background := ColorRect.new()
-	background.color = Color(0.1, 0.08, 0.05)
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
+	GameState.game_over = false
+	hud.hide()
+	player.facing_direction = Vector2(1, 1).normalized()
+	player.update_animation(Vector2.ZERO)
+	player.animated_sprite.set_frame_and_progress(0, 0.0)
+	smoke.process_mode = Node.PROCESS_MODE_ALWAYS
+	smoke.play("fume")
+	camera.zoom = _normal_zoom * maxf(intro_zoom_multiplier, 1.0)
+	get_tree().paused = true
+	camera.reset_smoothing()
+	camera.force_update_scroll()
 
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
 
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 40)
-	center.add_child(column)
-
-	var title := Label.new()
-	title.text = "The eggceptionnal Chicken Norris"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
-	column.add_child(title)
-
-	play_button = Button.new()
-	play_button.text = "Play"
-	play_button.custom_minimum_size = Vector2(240, 70)
-	play_button.add_theme_font_size_override("font_size", BUTTON_FONT_SIZE)
-	play_button.pressed.connect(_on_play_pressed)
-	column.add_child(play_button)
-	play_button.grab_focus()
+func _process(_delta: float) -> void:
+	# La caméra doit suivre son tween même pendant la pause du monde.
+	camera.force_update_scroll()
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
-		detected_device = GameState.DEVICE_XBOX
-		if (event as InputEventJoypadButton).button_index == JOY_BUTTON_A:
-			get_viewport().set_input_as_handled()
-			_on_play_pressed()
-	elif event is InputEventKey and (event as InputEventKey).pressed:
-		detected_device = GameState.DEVICE_KEYBOARD_MOUSE
-	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
-		detected_device = GameState.DEVICE_KEYBOARD_MOUSE
+	if _starting:
+		return
+	var start := false
+	if event is InputEventJoypadButton:
+		start = event.pressed and event.button_index in [JOY_BUTTON_A, JOY_BUTTON_START]
+		if start:
+			GameState.input_device = GameState.DEVICE_XBOX
+	elif event is InputEventKey:
+		start = event.pressed and not event.echo
+		if start:
+			GameState.input_device = GameState.DEVICE_KEYBOARD_MOUSE
+	elif event is InputEventMouseButton:
+		if event.pressed:
+			GameState.input_device = GameState.DEVICE_KEYBOARD_MOUSE
+	if start:
+		get_viewport().set_input_as_handled()
+		_start_game()
 
 
-func _on_play_pressed() -> void:
+func _start_game() -> void:
 	if _starting:
 		return
 	_starting = true
-	GameState.input_device = detected_device if detected_device != "" else GameState.DEVICE_KEYBOARD_MOUSE
-	GameState.start_game(true)
+	start_screen.hide()
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(camera, "zoom", _normal_zoom, maxf(dezoom_duration, 0.01))
+	tween.tween_callback(_finish_intro)
+
+
+func _finish_intro() -> void:
+	camera.zoom = _normal_zoom
+	camera.force_update_scroll()
+	smoke.process_mode = _smoke_process_mode
+	player._left_consumed = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	hud.show()
+	_finished = true
+	get_tree().paused = false
+	get_parent().add_child.call_deferred(TutorialOverlay.new())
+	queue_free()
+
+
+func _exit_tree() -> void:
+	if not _finished:
+		# Ne pas laisser une autre scène en pause si l'introduction est quittée.
+		get_tree().paused = false

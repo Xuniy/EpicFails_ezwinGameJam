@@ -1,12 +1,13 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/title_screen.gd" id="1_title"]
+[ext_resource type="PackedScene" path="res://scences/world_test.tscn" id="1_world"]
+[ext_resource type="Script" path="res://scripts/title_screen.gd" id="2_intro"]
+[ext_resource type="PackedScene" path="res://scences/debut.tscn" id="3_start"]
 
-[node name="TitleScreen" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_title")
+[node name="TitleScreen" instance=ExtResource("1_world")]
+
+[node name="Intro" type="Node" parent="."]
+process_mode = 3
+script = ExtResource("2_intro")
+
+[node name="StartScreen" parent="Intro" instance=ExtResource("3_start")]

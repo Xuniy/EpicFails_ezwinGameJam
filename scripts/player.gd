@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 signal hit_received
+signal teleport_finished(succeeded: bool, origin: Vector2, destination: Vector2)
 
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
@@ -13,6 +14,14 @@ const TELEPORT_SOUND = preload("res://sounds/bruit_tp.wav")
 const TELEPORT_EFFECT = preload("res://scences/teleport_effect.tscn")
 const WALK_SOUND = preload("res://sounds/marche_player.wav")
 const DAMAGE_SOUND = preload("res://sounds/degats_player.wav")
+const PERFECT_EFFECT = preload("res://scences/perfect_effect.tscn")
+
+@export var perfect_bonus_duration: float = 10.0
+@export var perfect_speed_multiplier: float = 1.5
+var perfect_bonus_remaining: float = 0.0
+var _perfect_elapsed: float = 0.0
+var _perfect_effect: CanvasLayer
+var _perfect_material: ShaderMaterial
 
 var walk_sound: AudioStreamPlayer2D
 
@@ -68,6 +77,9 @@ var selected_item: String:
 @onready var health: float = max_health
 
 func _ready() -> void:
+	_perfect_effect = PERFECT_EFFECT.instantiate()
+	add_child(_perfect_effect)
+	_perfect_material = _perfect_effect.get_node("Distortion").material
 	walk_sound = AudioStreamPlayer2D.new()
 	walk_sound.name = "SonMarche"
 	walk_sound.stream = WALK_SOUND
@@ -209,6 +221,7 @@ func _on_enemy_exited(body: Node2D) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_perfect_bonus(delta)
 	var target: Vector2 = (item_aim.global_position+ item_aim.aim_direction * item_aim.distance)
 
 	if mouse_throw_item != "":
@@ -230,6 +243,8 @@ const ZOOM_SMOOTHNESS: float = 10.0
 
 func update_camera_zoom(target: Vector2, aiming: bool, delta: float) -> void:
 	var desired_zoom := normal_zoom
+	if perfect_bonus_remaining > 0.0:
+		desired_zoom *= 1.0 + sin(_perfect_elapsed * 3.0) * 0.015
 
 	if Input.is_action_pressed("dezoom"):
 		desired_zoom *= dezoom_factor
@@ -301,7 +316,8 @@ func _physics_process(_delta: float) -> void:
 	var direction := Input.get_vector(
 		"gauche", "droite", "haut", "bas"
 	)
-	velocity = direction * speed
+	var speed_multiplier := perfect_speed_multiplier if perfect_bonus_remaining > 0.0 else 1.0
+	velocity = direction * speed * speed_multiplier
 	var previous_position := global_position
 	move_and_slide()
 	_update_walk_sound(not global_position.is_equal_approx(previous_position))
@@ -336,8 +352,28 @@ func update_animation(direction: Vector2) -> void:
 		animated_sprite.play(WALK_ANIMATIONS[sector])
 	update_smoke_position()
 
-func take_damage(amount: float, show_hit_effect: bool = true) -> void:
+func activate_perfect_bonus() -> void:
 	if health <= 0.0:
+		return
+	perfect_bonus_remaining = perfect_bonus_duration
+	_perfect_elapsed = 0.0
+	_perfect_material.set_shader_parameter("intensity", 0.0)
+	_perfect_effect.show()
+
+
+func _update_perfect_bonus(delta: float) -> void:
+	if perfect_bonus_remaining <= 0.0:
+		return
+	perfect_bonus_remaining = maxf(0.0, perfect_bonus_remaining - delta)
+	_perfect_elapsed += delta
+	var intensity := minf(1.0, minf(_perfect_elapsed / 0.25, perfect_bonus_remaining / 0.4))
+	_perfect_material.set_shader_parameter("intensity", intensity)
+	if perfect_bonus_remaining <= 0.0:
+		_perfect_effect.hide()
+
+
+func take_damage(amount: float, show_hit_effect: bool = true) -> void:
+	if health <= 0.0 or (amount > 0.0 and perfect_bonus_remaining > 0.0):
 		return
 
 	var previous_health := health
@@ -379,6 +415,7 @@ func update_smoke_position() -> void:
 
 	fume.global_position = $pos_fume.to_global(local_position)
 func teleport_to(target: Vector2) -> bool:
+	var origin := global_position
 	var shape_node: CollisionShape2D = $player_collision
 	var query := PhysicsShapeQueryParameters2D.new()
 
@@ -394,14 +431,15 @@ func teleport_to(target: Vector2) -> bool:
 	var obstacles := get_world_2d().direct_space_state.intersect_shape(query)
 
 	if not obstacles.is_empty():
+		teleport_finished.emit(false, origin, target)
 		return false
 
-	var origin := global_position
 	global_position = target
 	var effect = TELEPORT_EFFECT.instantiate()
 	get_tree().current_scene.add_child(effect)
 	effect.setup(origin, target, animated_sprite)
 	SOUND_EFFECT.play_at(TELEPORT_SOUND, self)
+	teleport_finished.emit(true, origin, target)
 	return true
 func use_item_at(item_type: String, target: Vector2) -> void:
 	if not items.has(item_type) or items[item_type] <= 0:
