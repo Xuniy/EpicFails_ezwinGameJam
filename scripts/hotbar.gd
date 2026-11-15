@@ -12,7 +12,7 @@ const SLOT_GAP: float = 10.0
 const BOTTOM_MARGIN: float = 12.0
 # Zone intérieure de la case : le contour occupe les bords (32 px -> 8 px de marge).
 const ICON_INSET: float = 0.25
-const NAME_FONT_SIZE: int = 18
+const NAME_FONT_SIZE: int = 28
 const EMPTY_TINT := Color(0.4, 0.4, 0.4, 1.0)
 const COUNT_SHADOW := Color(0.0, 0.0, 0.0, 1.0)
 
@@ -84,7 +84,7 @@ func _draw() -> void:
 		var inner_right: float = rect.position.x + slot * (1.0 - ICON_INSET) - 2.0
 		var inner_bottom: float = rect.position.y + slot * (1.0 - ICON_INSET) - 2.0
 		var count_width: float = inner_right - rect.position.x
-		var font_size: int = 18 if is_selected else 12
+		var font_size: int = 28 if is_selected else 20
 		var count_text: String = str(quantity)
 		draw_string(
 			font,
@@ -110,7 +110,7 @@ func _draw() -> void:
 	var selected_name: String = DISPLAY_NAMES.get(selected_type, selected_type)
 	draw_string(
 		font,
-		Vector2(center_x - 100.0, base_y - big_size - 8.0),
+		Vector2(center_x - 100.0, base_y + 4.0),
 		selected_name,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		200.0,
