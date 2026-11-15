@@ -66,6 +66,7 @@ offset_bottom = 40.0
 
 [node name="Label" type="Label" parent="UI_en_sah/HUD/VBoxContainer" unique_id=85982627]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "Chicken Norris :"
 
 [node name="vieplayer" type="Control" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1214805675]
@@ -78,6 +79,7 @@ heart_region = Rect2(0, 0, 14, 16)
 
 [node name="Label2" type="Label" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1301598364]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "Poulailler :"
 
 [node name="viepoulailler" type="Control" parent="UI_en_sah/HUD/VBoxContainer" unique_id=270011460]
