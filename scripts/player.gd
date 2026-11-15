@@ -45,6 +45,9 @@ var _last_mouse_position := Vector2.ZERO
 var _right_was_down: bool = false
 var _left_was_down: bool = false
 var _left_consumed: bool = false
+# Dézoom du lancer : reste actif jusqu'au relâchement du clic droit, même après validation.
+var _throw_zoom_active: bool = false
+var _last_throw_target := Vector2.ZERO
 
 var selected_item: String:
 	get:
@@ -152,6 +155,7 @@ func start_mouse_throw() -> void:
 		return
 	mouse_throw_item = selected_item
 	mouse_throw_anchor = get_global_mouse_position()
+	_throw_zoom_active = true
 
 
 # Point visé par le lance-pierre, selon la position actuelle de la souris.
@@ -166,6 +170,7 @@ func get_sling_target() -> Vector2:
 
 func cancel_mouse_throw() -> void:
 	mouse_throw_item = ""
+	_throw_zoom_active = false
 
 
 func release_mouse_throw() -> void:
@@ -190,9 +195,13 @@ func _on_enemy_exited(body: Node2D) -> void:
 func _process(_delta: float) -> void:
 	var target: Vector2 = (item_aim.global_position+ item_aim.aim_direction * item_aim.distance)
 
+	if mouse_throw_item != "":
+		_last_throw_target = get_sling_target()
+	if _throw_zoom_active:
+		target = _last_throw_target
 	update_camera_zoom(
 		target,
-		is_item_aiming()
+		is_item_aiming() or _throw_zoom_active
 	)
 	
 
