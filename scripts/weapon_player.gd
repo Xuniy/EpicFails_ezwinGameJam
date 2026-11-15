@@ -5,7 +5,8 @@ const BULLET_SCENE = preload("res://scences/bullet.tscn")
 @export var fire_interval: float = 0.14
 @export var base_flip_v: bool = true
 
-@onready var muzzle: Marker2D = $Sortie_balle
+@onready var muzzle1: Marker2D = $Sortie_balle_1
+@onready var muzzle2: Marker2D = $Sortie_balle_2
 @onready var weapon_sprite: AnimatedSprite2D = $arme_qui_tire
 @onready var idle_sprite: Sprite2D = $arme_tire_pas
 
@@ -73,6 +74,8 @@ func _physics_process(delta: float) -> void:
 func shoot() -> void:
 	var bullet = BULLET_SCENE.instantiate()
 	get_tree().current_scene.add_child(bullet)
-
-	bullet.global_position = muzzle.global_position
+	if (weapon_sprite.flip_v):
+		bullet.global_position = muzzle2.global_position
+	else :
+		bullet.global_position = muzzle1.global_position
 	bullet.direction = last_aim_direction

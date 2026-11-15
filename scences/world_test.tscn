@@ -3,9 +3,23 @@
 [ext_resource type="PackedScene" uid="uid://b3b1bju1xc1j6" path="res://scences/player.tscn" id="1_7hf7j"]
 [ext_resource type="Script" uid="uid://bg2o5lto7jgic" path="res://scripts/enemies_spawner.gd" id="2_linpd"]
 [ext_resource type="Script" uid="uid://r4roffodcp2i" path="res://scripts/hud.gd" id="4_q6hbb"]
-[ext_resource type="Script" uid="uid://b8f2p80r0wnsy" path="res://scripts/label_temp.gd" id="5_lx0p1"]
 [ext_resource type="PackedScene" uid="uid://bsy8uy8p02vny" path="res://scences/farm_tilemap.tscn" id="6_tavpr"]
 [ext_resource type="PackedScene" uid="uid://xb3hdp3hsnf4" path="res://scences/poulailler.tscn" id="6_vvdkv"]
+
+[ext_resource type="Script" path="res://scripts/compass.gd" id="6_compass"]
+
+[ext_resource type="Script" path="res://scripts/hotbar.gd" id="5_hotbar"]
+
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="7_healthbar"]
+[ext_resource type="Texture2D" path="res://assets/Health_01.png" id="8_frame_player"]
+[ext_resource type="Texture2D" path="res://assets/Health_01_red.png" id="12_heart_red"]
+[ext_resource type="Texture2D" path="res://assets/Health_01_Bar01.png" id="9_fill_player"]
+[ext_resource type="Texture2D" path="res://assets/Health_03.png" id="10_frame_coop"]
+[ext_resource type="Texture2D" path="res://assets/Health_04_Bar02.png" id="11_fill_coop"]
+
+[ext_resource type="Script" path="res://scripts/joint_bar.gd" id="13_joint"]
+[ext_resource type="Texture2D" path="res://assets/joint_bar.png" id="14_joint_tex"]
+[ext_resource type="Texture2D" path="res://assets/fume.png" id="15_fume_tex"]
 
 [node name="world_test" type="Node2D" unique_id=1240984361]
 y_sort_enabled = true
@@ -44,31 +58,66 @@ offset_bottom = 40.0
 
 [node name="Label" type="Label" parent="UI_en_sah/HUD/VBoxContainer" unique_id=85982627]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "Chicken Norris :"
 
-[node name="vieplayer" type="ProgressBar" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1214805675]
+[node name="vieplayer" type="Control" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1214805675]
 layout_mode = 2
+script = ExtResource("7_healthbar")
+frame = ExtResource("8_frame_player")
+fill = ExtResource("9_fill_player")
+heart_fill = ExtResource("12_heart_red")
+heart_region = Rect2(0, 0, 14, 16)
 
 [node name="Label2" type="Label" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1301598364]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "Poulailler :"
 
-[node name="viepoulailler" type="ProgressBar" parent="UI_en_sah/HUD/VBoxContainer" unique_id=270011460]
+[node name="viepoulailler" type="Control" parent="UI_en_sah/HUD/VBoxContainer" unique_id=270011460]
 layout_mode = 2
+script = ExtResource("7_healthbar")
+frame = ExtResource("10_frame_coop")
+fill = ExtResource("11_fill_coop")
+track_region = Rect2(11, 7, 42, 2)
+fill_region = Rect2(0, 1, 42, 2)
 
-[node name="ItemBar" type="HBoxContainer" parent="UI_en_sah/HUD" unique_id=26992012]
+[node name="Hotbar" type="Control" parent="UI_en_sah/HUD" unique_id=748203516]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -170.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("5_hotbar")
+
+[node name="Compass" type="Control" parent="UI_en_sah/HUD" unique_id=610473902]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_compass")
+
+[node name="JointBar" type="Control" parent="UI_en_sah/HUD" unique_id=905112376]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 40.0
+offset_left = 16.0
+offset_top = -90.0
+offset_right = 160.0
+offset_bottom = -16.0
 grow_vertical = 0
-
-[node name="Label" type="Label" parent="UI_en_sah/HUD/ItemBar" unique_id=1304129256]
-layout_mode = 2
-text = "TEST"
-script = ExtResource("5_lx0p1")
+mouse_filter = 2
+script = ExtResource("13_joint")
+joint_texture = ExtResource("14_joint_tex")
+smoke_texture = ExtResource("15_fume_tex")
 
 [node name="FarmTilemap" parent="." unique_id=1617969760 instance=ExtResource("6_tavpr")]
 
