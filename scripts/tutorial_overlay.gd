@@ -11,7 +11,9 @@ const ICON_MOUSE := preload("res://assets/tutoriel/mouse.png")
 const ICON_RT := preload("res://assets/tutoriel/xbox_rt.png")
 const ICON_LT := preload("res://assets/tutoriel/xbox_lt.png")
 const ICON_LB := preload("res://assets/tutoriel/xbox_lb.png")
-const SPEAKER := "Maître Coq"
+const SPEAKER := "Maître Linus"
+const PORTRAIT := preload("res://assets/tutoriel/master_linus.png")
+const PORTRAIT_SIZE: float = 128.0
 const ICON_SIZE: float = 42.0
 const BUBBLE_TIME: float = 8.0
 # Joint figé pendant le tutoriel : durée énorme = décroissance quasi nulle.
@@ -104,8 +106,20 @@ func _build_ui() -> void:
 	dialogue_panel.visible = false
 	add_child(dialogue_panel)
 
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 20)
+	dialogue_panel.add_child(row)
+
+	var portrait := TextureRect.new()
+	portrait.texture = PORTRAIT
+	portrait.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	row.add_child(portrait)
+
 	var column := VBoxContainer.new()
-	dialogue_panel.add_child(column)
+	row.add_child(column)
 
 	speaker_label = Label.new()
 	speaker_label.add_theme_font_size_override("font_size", 26)
@@ -115,7 +129,7 @@ func _build_ui() -> void:
 
 	dialogue_label = Label.new()
 	dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dialogue_label.custom_minimum_size = Vector2(900, 0)
+	dialogue_label.custom_minimum_size = Vector2(760, 0)
 	dialogue_label.add_theme_font_size_override("font_size", 28)
 	column.add_child(dialogue_label)
 
