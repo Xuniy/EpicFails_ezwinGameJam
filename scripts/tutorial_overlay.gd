@@ -16,10 +16,14 @@ const ICON_SIZE: float = 42.0
 const BUBBLE_TIME: float = 8.0
 # Joint figé pendant le tutoriel : durée énorme = décroissance quasi nulle.
 const FROZEN_DURATION: float = 1.0e9
+# Centre de l'enceinte du poulailler (relatif à son origine) et rayon à garder libre d'ennemis.
+const POULAILLER_CENTER := Vector2(-80.0, 140.0)
+const SAFE_RADIUS: float = 560.0
 
 # Référence untyped volontairement : les méthodes du joueur et du HUD sont appelées dynamiquement.
 var player
 var joint
+var poulailler: Node2D
 var enemies_root: Node
 var is_xbox: bool = false
 var joint_duration: float = 45.0
@@ -47,6 +51,7 @@ func _ready() -> void:
 		joint_duration = joint.duration
 		joint.duration = FROZEN_DURATION
 		joint.amount = 1.0
+	poulailler = scene.get_node_or_null("poulailler") as Node2D
 	enemies_root = scene.get_node_or_null("Enemies")
 	if enemies_root == null:
 		enemies_root = scene
@@ -126,13 +131,13 @@ func _build_script() -> Array:
 		{"type": "objective", "kind": "kill", "group": "target",
 			"pc": "Tire sur la cible devant toi (clic gauche).", "xbox": "Tire sur la cible devant toi (RT).",
 			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_RT, "say": ""},
+		{"type": "objective", "kind": "pick", "item": "tp",
+			"pc": "Ramasse l'eggder pearl.", "xbox": "Ramasse l'eggder pearl.",
+			"say": "Elle a laissé une eggder pearl : ramasse-la en marchant dessus."},
 		{"type": "objective", "kind": "switch",
 			"pc": "Change d'objet : molette de la souris.", "xbox": "Change d'objet : LB ou RB.",
 			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_LB,
 			"say": "Change d'objet avec la molette, ou avec LB et RB à la manette."},
-		{"type": "objective", "kind": "pick", "item": "tp",
-			"pc": "Ramasse l'eggder pearl.", "xbox": "Ramasse l'eggder pearl.",
-			"say": "Elle a laissé une eggder pearl : ramasse-la en marchant dessus."},
 		{"type": "objective", "kind": "use", "item": "tp",
 			"pc": "Lance l'eggder pearl : clic droit maintenu, puis clic gauche.",
 			"xbox": "Lance l'eggder pearl : LT maintenu, puis RT.",
@@ -216,6 +221,8 @@ func _start_objective(entry: Dictionary) -> void:
 			entry["baseline"] = _count(entry["item"])
 		"switch":
 			entry["baseline"] = player.selected_index
+		"joint":
+			entry["baseline"] = joint.amount if joint != null else 0.0
 	var say: String = entry.get("say", "")
 	if say != "":
 		_show_bubble(say)
@@ -234,7 +241,10 @@ func _is_done(entry: Dictionary) -> bool:
 		"switch":
 			return entry.has("baseline") and player.selected_index != entry["baseline"]
 		"joint":
-			return joint == null or joint.amount >= 1.0
+			# Fini dès qu'une bonne touche a fait monter le joint (ou joint plein).
+			if joint == null or joint.amount >= 1.0:
+				return true
+			return entry.has("baseline") and joint.amount > entry["baseline"] + 0.05
 		"always":
 			return true
 	# Réplique bloquante : terminée quand la bulle est fermée.
@@ -266,17 +276,41 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-# Vagues : positions relatives au joueur, au moment où l'étape commence.
+# Vagues : placées à l'opposé du poulailler et jamais dans son enceinte.
+func _pole_centre() -> Vector2:
+	return poulailler.global_position + POULAILLER_CENTER if poulailler else player.global_position
+
+
+func _away_dir() -> Vector2:
+	var away: Vector2 = player.global_position - _pole_centre()
+	if away.length() < 1.0:
+		return Vector2.LEFT
+	return away.normalized()
+
+
+# offset.x : distance depuis le joueur, dans le sens opposé au poulailler ; offset.y : décalage latéral.
+func _place(offset: Vector2) -> Vector2:
+	var away := _away_dir()
+	var pos: Vector2 = player.global_position + away * offset.x + away.orthogonal() * offset.y
+	var centre := _pole_centre()
+	var dir: Vector2 = pos - centre
+	if dir.length() < SAFE_RADIUS:
+		if dir.length() < 1.0:
+			dir = away
+		pos = centre + dir.normalized() * SAFE_RADIUS
+	return pos
+
+
 func _wave_target() -> void:
-	groups["target"] = [_spawn_enemy(player.global_position + Vector2(300, 0), "tp")]
+	groups["target"] = [_spawn_enemy(_place(Vector2(300, 0)), "tp")]
 
 
 func _wave_second() -> void:
-	groups["second"] = [_spawn_enemy(player.global_position + Vector2(-260, -160), "grenade")]
+	groups["second"] = [_spawn_enemy(_place(Vector2(260, -160)), "grenade")]
 
 
 func _wave_small() -> void:
-	var centre: Vector2 = player.global_position + Vector2(320, 0)
+	var centre: Vector2 = _place(Vector2(320, 0))
 	groups["small"] = [
 		_spawn_enemy(centre + Vector2(-50, -30), ""),
 		_spawn_enemy(centre + Vector2(50, -30), ""),
@@ -285,7 +319,7 @@ func _wave_small() -> void:
 
 
 func _wave_big() -> void:
-	var centre: Vector2 = player.global_position + Vector2(480, -120)
+	var centre: Vector2 = _place(Vector2(480, -120))
 	var big: Array = []
 	for i in 8:
 		big.append(_spawn_enemy(centre + Vector2.RIGHT.rotated(TAU * i / 8.0) * 90.0, ""))
