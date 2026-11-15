@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://byuhtwkkcyls3"]
+
+[ext_resource type="Script" uid="uid://c455iddlonsfk" path="res://scences/ennemy_2.gd" id="1_fa0ea"]
+[ext_resource type="SpriteFrames" uid="uid://cxfp4f3bmv2wm" path="res://assets/fox_frames.tres" id="2_fox"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8uti2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w5pmr"]
+size = Vector2(105, 12)
+
+[node name="ennemy2" type="CharacterBody2D" unique_id=203190969]
+scale = Vector2(1.5, 1.5)
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_fa0ea")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=75131821]
+shape = SubResource("CapsuleShape2D_8uti2")
+
+[node name="attack_zone" type="Area2D" parent="." unique_id=2105337174]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="attack_zone" unique_id=414561195]
+position = Vector2(60, 1)
+shape = SubResource("RectangleShape2D_w5pmr")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1187333540]
+texture_filter = 1
+sprite_frames = ExtResource("2_fox")
+animation = &"walk_down"
