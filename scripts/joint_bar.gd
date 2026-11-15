@@ -13,10 +13,13 @@ extends Control
 @export var smoke_scale_factor: float = 3.0
 
 const JOINT_REGION := Rect2(0, 13, 32, 6)  # zone du joint dans joint_bar.png
-# Unité qui se déplace : la ligne marron qui délimite la braise (colonne 26) + la braise rouge.
-const EMBER_COLUMN: float = 26.0
-const EMBER_WIDTH: float = 6.0             # 32 - EMBER_COLUMN
+# Unité qui se déplace : la frontière marron (diagonale, colonnes 25 à 28 selon la ligne)
+# + la braise rouge jusqu'au bord droit. La colonne 25 est le point le plus à gauche de la frontière.
+const EMBER_COLUMN: float = 25.0
+const EMBER_WIDTH: float = 7.0             # 32 - EMBER_COLUMN
 const SMOKE_FRAME_SIZE: int = 8
+# Dans chaque image de fume.png, la fumée occupe les colonnes 0 à 3 : son centre est en colonne 2.
+const SMOKE_CONTENT_CENTER: float = 2.0
 const SMOKE_FRAME_COUNT: int = 6
 const SMOKE_FPS: float = 5.0
 
@@ -78,7 +81,7 @@ func _update_smoke() -> void:
 	var smoke_px: float = display_scale * smoke_scale_factor
 	var ember_center_x: float = (_ember_x() + EMBER_WIDTH * 0.5) * display_scale
 	smoke.position = Vector2(
-		ember_center_x - SMOKE_FRAME_SIZE * smoke_px * 0.5,
+		ember_center_x - SMOKE_CONTENT_CENTER * smoke_px,
 		_joint_top() - SMOKE_FRAME_SIZE * smoke_px
 	)
 
