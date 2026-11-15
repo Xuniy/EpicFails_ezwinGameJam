@@ -1,0 +1,125 @@
+[gd_scene format=4 uid="uid://xb3hdp3hsnf4"]
+
+[ext_resource type="Script" uid="uid://dau1bb6qsncp4" path="res://scripts/poulailler.gd" id="1_suakp"]
+[ext_resource type="TileSet" uid="uid://d31atjrysyksv" path="res://assets/kenney_farm/tilesets/sol.tres" id="2_av1cu"]
+[ext_resource type="TileSet" uid="uid://bohm0lm21omid" path="res://assets/kenney_farm/tilesets/murs.tres" id="2_fs5kt"]
+[ext_resource type="TileSet" uid="uid://ds2qfyqmnuk61" path="res://assets/kenney_farm/tilesets/planchers.tres" id="3_2yv8w"]
+[ext_resource type="TileSet" uid="uid://cpq6m17ueyj71" path="res://assets/kenney_farm/tilesets/clotures.tres" id="4_2yv8w"]
+[ext_resource type="TileSet" uid="uid://5e3hyplvilt5" path="res://assets/kenney_farm/tilesets/toits.tres" id="7_68g2c"]
+[ext_resource type="TileSet" uid="uid://hqwkeehsr0es" path="res://assets/kenney_farm/tilesets/decors.tres" id="8_w5dx3"]
+
+[node name="poulailler" type="StaticBody2D" unique_id=1441661232]
+editor_description = "Poulailler a proteger. Les TileMapLayer composent le batiment et son enclos. La collision suit uniquement le batiment ; les clotures restent decoratives."
+y_sort_enabled = true
+texture_filter = 1
+position = Vector2(0, -313.6)
+script = ExtResource("1_suakp")
+
+[node name="Ferme" type="Node2D" parent="." unique_id=1202228666]
+y_sort_enabled = true
+position = Vector2(-89.6, 0)
+scale = Vector2(0.7, 0.7)
+
+[node name="SolEnclos" type="TileMapLayer" parent="Ferme" unique_id=336542948]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+z_index = -10
+tile_map_data = PackedByteArray("AAD+/wEAAAABAAAAAAD+/wIAAAAAAAAAAAD+/wMAAAABAAAAAAD//wEAAAAAAAAAAAD//wIAAAABAAAAAAD//wMAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAABAAAAAAABAAEAAAAAAAAAAAABAAIAAAABAAAAAAABAAMAAAAAAAAAAAACAAEAAAABAAAAAAACAAIAAAAAAAAAAAACAAMAAAABAAAAAAADAAEAAAAAAAAAAAADAAIAAAABAAAAAAADAAMAAAAAAAAAAAAEAAEAAAABAAAAAAAEAAIAAAAAAAAAAAAEAAMAAAABAAAAAAA=")
+tile_set = ExtResource("2_av1cu")
+
+[node name="OmbreBatiment" type="TileMapLayer" parent="Ferme" unique_id=466236579]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+self_modulate = Color(0, 0, 0, 0.22)
+z_index = -9
+position = Vector2(52, 48)
+tile_map_data = PackedByteArray("AAD+////AAAAAAAAAAD+/wAAAAAAAAAAAAD/////AAAAAAAAAAD//wAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAAAAAAAAAABAP//AAAAAAAAAAABAAAAAAAAAAAAAAA=")
+tile_set = ExtResource("3_2yv8w")
+
+[node name="Plancher" type="TileMapLayer" parent="Ferme" unique_id=144794680]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+z_index = -8
+tile_map_data = PackedByteArray("AAD+////AAAAAAAAAAD+/wAAAAAAAAAAAAD/////AAAAAAAAAAD//wAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAAAAAAAAAABAP//AAAAAAAAAAABAAAAAAAAAAAAAAA=")
+tile_set = ExtResource("3_2yv8w")
+
+[node name="CheminEntree" type="TileMapLayer" parent="Ferme" unique_id=2117188819]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+z_index = -8
+tile_map_data = PackedByteArray("AAAAAAEAAAAAAAcAAAAAAAIAAAAAAAcAAAAAAAMAAAAAAAcAAAA=")
+tile_set = ExtResource("3_2yv8w")
+
+[node name="Clotures" type="TileMapLayer" parent="Ferme" unique_id=130436395]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+/wEAAAAAAAIAAAAEAAEAAAADAAIAAAD+/wIAAAAAAAIAAAAEAAIAAAADAAIAAAD+/wMAAAAAAAIAAAAEAAMAAAADAAIAAAA=")
+tile_set = ExtResource("4_2yv8w")
+
+[node name="AnglesClotures" type="TileMapLayer" parent="Ferme" unique_id=1462128500]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+/wMAAAABAAIAAAD//wMAAAABAAIAAAACAAMAAAABAAIAAAACAAEAAAACAAIAAAADAAMAAAABAAIAAAADAAEAAAACAAIAAAAEAAMAAAABAAIAAAAEAAEAAAACAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAA=")
+tile_set = ExtResource("4_2yv8w")
+
+[node name="MurFond" type="TileMapLayer" parent="Ferme" unique_id=2117141410]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+////AAACAAAAAAD/////AAACABUAAAAAAP//AAACAAAAAAABAP//AAACAAAAAAA=")
+tile_set = ExtResource("2_fs5kt")
+
+[node name="MurGauche" type="TileMapLayer" parent="Ferme" unique_id=585466939]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+////AAAAAAAAAAD+/wAAAAAAAAAAAAA=")
+tile_set = ExtResource("2_fs5kt")
+
+[node name="MurFacade" type="TileMapLayer" parent="Ferme" unique_id=1565952539]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+/wAAAAABABQAAAD//wAAAAABABQAAAAAAAAAAAABAAQAAAABAAAAAAABAAAAAAA=")
+tile_set = ExtResource("2_fs5kt")
+
+[node name="MurDroit" type="TileMapLayer" parent="Ferme" unique_id=1666138244]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAABAP//AAADABQAAAABAAAAAAADAAAAAAA=")
+tile_set = ExtResource("2_fs5kt")
+
+[node name="PignonsGauche" type="TileMapLayer" parent="Ferme" unique_id=870332839]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+position = Vector2(0, -164)
+tile_map_data = PackedByteArray("AAD+////AAAAABIAAAD+/wAAAAAAABEAAAA=")
+tile_set = ExtResource("2_fs5kt")
+y_sort_origin = 164
+
+[node name="PignonsDroit" type="TileMapLayer" parent="Ferme" unique_id=464317561]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+position = Vector2(0, -164)
+tile_map_data = PackedByteArray("AAABAP//AAADABEAAAABAAAAAAADABIAAAA=")
+tile_set = ExtResource("2_fs5kt")
+y_sort_origin = 164
+
+[node name="ToitArriere" type="TileMapLayer" parent="Ferme" unique_id=2043935232]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+position = Vector2(0, -164)
+tile_map_data = PackedByteArray("AAD+////AAADAAIAAAD/////AAADAAIAAAAAAP//AAADAAIAAAABAP//AAADAAIAAAA=")
+tile_set = ExtResource("7_68g2c")
+y_sort_origin = 164
+
+[node name="ToitAvant" type="TileMapLayer" parent="Ferme" unique_id=589929676]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+position = Vector2(0, -164)
+tile_map_data = PackedByteArray("AAD+/wAAAAAAAAIAAAD//wAAAAAAAAIAAAAAAAAAAAAAAAIAAAABAAAAAAAAAAIAAAA=")
+tile_set = ExtResource("7_68g2c")
+y_sort_origin = 164
+
+[node name="Decors" type="TileMapLayer" parent="Ferme" unique_id=619224595]
+editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD+/wEAAAAAAAIAAAD//wMAAAACAAIAAAADAAEAAAACAAIAAAACAAIAAAADAAIAAAA=")
+tile_set = ExtResource("8_w5dx3")
+
+[node name="CollisionBatiment" type="CollisionPolygon2D" parent="." unique_id=1614725969]
+position = Vector2(9, -9.399994)
+polygon = PackedVector2Array(-99, -126.399994, 260, 45, 103, 131.6, 370, 275, 80, 402, -533, 80.600006)

@@ -48,7 +48,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_w5pmr"]
-radius = 250.04999
+radius = 316.12814
 
 [node name="nuke" type="Node2D" unique_id=1611035271]
 script = ExtResource("1_hxvcg")
@@ -60,8 +60,11 @@ scale = Vector2(3, 3)
 texture = ExtResource("2_i7b0b")
 
 [node name="zone_largage" type="AnimatedSprite2D" parent="." unique_id=1288019809]
+self_modulate = Color(1, 1, 1, 0.61960787)
 texture_filter = 1
+rotation = 0.4712389
 scale = Vector2(15, 15)
+skew = 0.6457718
 sprite_frames = SubResource("SpriteFrames_w5pmr")
 animation = &"nuke_largage"
 frame_progress = 0.3019208

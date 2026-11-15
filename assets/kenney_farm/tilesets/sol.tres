@@ -1,0 +1,41 @@
+[gd_resource type="TileSet" format=3 uid="uid://d31atjrysyksv"]
+
+[ext_resource type="Texture2D" uid="uid://veb1ewjtpp3h" path="res://assets/kenney_farm/atlases/sol.png" id="1_damho"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t555h"]
+resource_name = "Sol (E, N, S, W)"
+texture = ExtResource("1_damho")
+texture_region_size = Vector2i(256, 320)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 96)
+0:0/0/custom_data_0 = "dirt_E"
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 96)
+1:0/0/custom_data_0 = "dirt_N"
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 96)
+2:0/0/custom_data_0 = "dirt_S"
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 96)
+3:0/0/custom_data_0 = "dirt_W"
+0:1/0 = 0
+0:1/0/texture_origin = Vector2i(0, 96)
+0:1/0/custom_data_0 = "dirtFarmland_E"
+1:1/0 = 0
+1:1/0/texture_origin = Vector2i(0, 96)
+1:1/0/custom_data_0 = "dirtFarmland_N"
+2:1/0 = 0
+2:1/0/texture_origin = Vector2i(0, 96)
+2:1/0/custom_data_0 = "dirtFarmland_S"
+3:1/0 = 0
+3:1/0/texture_origin = Vector2i(0, 96)
+3:1/0/custom_data_0 = "dirtFarmland_W"
+
+[resource]
+resource_name = "Ferme - Sol"
+tile_shape = 1
+tile_layout = 5
+tile_size = Vector2i(256, 128)
+custom_data_layer_0/name = "asset"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_t555h")

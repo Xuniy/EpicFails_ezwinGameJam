@@ -2,32 +2,24 @@
 
 [ext_resource type="PackedScene" uid="uid://b3b1bju1xc1j6" path="res://scences/player.tscn" id="1_7hf7j"]
 [ext_resource type="Script" uid="uid://bg2o5lto7jgic" path="res://scripts/enemies_spawner.gd" id="2_linpd"]
-[ext_resource type="Script" uid="uid://dau1bb6qsncp4" path="res://scripts/poulailler.gd" id="2_m6btw"]
 [ext_resource type="Script" uid="uid://r4roffodcp2i" path="res://scripts/hud.gd" id="4_q6hbb"]
 [ext_resource type="Script" uid="uid://b8f2p80r0wnsy" path="res://scripts/label_temp.gd" id="5_lx0p1"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_w5pmr"]
-size = Vector2(34, 20)
+[ext_resource type="PackedScene" uid="uid://bsy8uy8p02vny" path="res://scences/farm_tilemap.tscn" id="6_tavpr"]
+[ext_resource type="PackedScene" uid="uid://xb3hdp3hsnf4" path="res://scences/poulailler.tscn" id="6_vvdkv"]
 
 [node name="world_test" type="Node2D" unique_id=1240984361]
+y_sort_enabled = true
 
 [node name="Items" type="Node2D" parent="." unique_id=1854365252]
 position = Vector2(0, -137)
 scale = Vector2(2, 2)
 
 [node name="Player" parent="." unique_id=762445141 instance=ExtResource("1_7hf7j")]
-position = Vector2(0, -137)
+position = Vector2(-361, -51)
 collision_mask = 1
 
-[node name="poulailler" type="StaticBody2D" parent="." unique_id=1979283770]
-position = Vector2(0, 70)
-script = ExtResource("2_m6btw")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="poulailler" unique_id=835015112]
-scale = Vector2(5, 5)
-shape = SubResource("RectangleShape2D_w5pmr")
-
 [node name="Enemies" type="Node2D" parent="." unique_id=1170766893]
+y_sort_enabled = true
 script = ExtResource("2_linpd")
 
 [node name="Timer" type="Timer" parent="Enemies" unique_id=1949904308]
@@ -77,3 +69,7 @@ grow_vertical = 0
 layout_mode = 2
 text = "TEST"
 script = ExtResource("5_lx0p1")
+
+[node name="FarmTilemap" parent="." unique_id=1617969760 instance=ExtResource("6_tavpr")]
+
+[node name="poulailler" parent="." unique_id=1441661232 instance=ExtResource("6_vvdkv")]

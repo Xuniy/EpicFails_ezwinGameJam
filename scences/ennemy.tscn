@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://s3o7rsi75e24" path="res://scripts/ennemy.gd" id="1_ocao2"]
 [ext_resource type="SpriteFrames" uid="uid://eu6co6gistiv" path="res://assets/farmer_frames.tres" id="2_farmer"]
 [ext_resource type="Texture2D" uid="uid://b4h01mq856h5s" path="res://assets/fourche4_verticale_64.png" id="3_kfeaf"]
+[ext_resource type="Texture2D" path="res://assets/ombre.svg" id="4_ombre"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_w5pmr"]
 
@@ -12,6 +13,13 @@ collision_layer = 2
 collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_ocao2")
+
+[node name="Ombre" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(0, 14)
+texture = ExtResource("4_ombre")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2104585815]
 shape = SubResource("CapsuleShape2D_w5pmr")

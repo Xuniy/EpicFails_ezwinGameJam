@@ -1,0 +1,65 @@
+[gd_resource type="TileSet" format=3 uid="uid://nnl78l2dxnda"]
+
+[ext_resource type="Texture2D" uid="uid://bjtgihuin2hyh" path="res://assets/kenney_farm/atlases/cultures.png" id="1_i3g74"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cr3ak"]
+resource_name = "Cultures (E, N, S, W)"
+texture = ExtResource("1_i3g74")
+texture_region_size = Vector2i(256, 320)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 96)
+0:0/0/custom_data_0 = "corn_E"
+1:0/0 = 0
+1:0/0/texture_origin = Vector2i(0, 96)
+1:0/0/custom_data_0 = "corn_N"
+2:0/0 = 0
+2:0/0/texture_origin = Vector2i(0, 96)
+2:0/0/custom_data_0 = "corn_S"
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(0, 96)
+3:0/0/custom_data_0 = "corn_W"
+0:1/0 = 0
+0:1/0/texture_origin = Vector2i(0, 96)
+0:1/0/custom_data_0 = "cornDouble_E"
+1:1/0 = 0
+1:1/0/texture_origin = Vector2i(0, 96)
+1:1/0/custom_data_0 = "cornDouble_N"
+2:1/0 = 0
+2:1/0/texture_origin = Vector2i(0, 96)
+2:1/0/custom_data_0 = "cornDouble_S"
+3:1/0 = 0
+3:1/0/texture_origin = Vector2i(0, 96)
+3:1/0/custom_data_0 = "cornDouble_W"
+0:2/0 = 0
+0:2/0/texture_origin = Vector2i(0, 96)
+0:2/0/custom_data_0 = "cornYoung_E"
+1:2/0 = 0
+1:2/0/texture_origin = Vector2i(0, 96)
+1:2/0/custom_data_0 = "cornYoung_N"
+2:2/0 = 0
+2:2/0/texture_origin = Vector2i(0, 96)
+2:2/0/custom_data_0 = "cornYoung_S"
+3:2/0 = 0
+3:2/0/texture_origin = Vector2i(0, 96)
+3:2/0/custom_data_0 = "cornYoung_W"
+0:3/0 = 0
+0:3/0/texture_origin = Vector2i(0, 96)
+0:3/0/custom_data_0 = "cornYoungDouble_E"
+1:3/0 = 0
+1:3/0/texture_origin = Vector2i(0, 96)
+1:3/0/custom_data_0 = "cornYoungDouble_N"
+2:3/0 = 0
+2:3/0/texture_origin = Vector2i(0, 96)
+2:3/0/custom_data_0 = "cornYoungDouble_S"
+3:3/0 = 0
+3:3/0/texture_origin = Vector2i(0, 96)
+3:3/0/custom_data_0 = "cornYoungDouble_W"
+
+[resource]
+resource_name = "Ferme - Cultures"
+tile_shape = 1
+tile_layout = 5
+tile_size = Vector2i(256, 128)
+custom_data_layer_0/name = "asset"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_cr3ak")

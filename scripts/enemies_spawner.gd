@@ -1,6 +1,7 @@
 extends Node2D
 
 var enemy_scene: PackedScene = preload("res://scences/ennemy2.tscn")
+var enemy_scene2: PackedScene = preload("res://scences/ennemy.tscn")
 @onready var poulailler: Node2D = $"../poulailler"
 @export var spawn_radius: float = 3000.0
 @export var screen_margin: float = 100.0
@@ -36,7 +37,9 @@ func spawn_enemy() -> void:
 			position_spawn, ", écran=", position_ecran)
 		return
 
-	var enemy = enemy_scene.instantiate()
+	var list_chaine = [enemy_scene,enemy_scene2]
+	var temp = list_chaine.pick_random()
+	var enemy = temp.instantiate()
 	enemy.default_target = poulailler
 	add_child(enemy)
 	enemy.global_position = position_spawn

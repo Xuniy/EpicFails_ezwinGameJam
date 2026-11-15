@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://dlqrrq7l52vi4" path="res://assets/gun_sprite_sheet.png" id="3_s4ay6"]
 [ext_resource type="Texture2D" uid="uid://brbo8sju2u55r" path="res://assets/weapon_image.png" id="4_eqdch"]
 [ext_resource type="Texture2D" uid="uid://cft18d54dkn6u" path="res://assets/fume.png" id="9_641ry"]
+[ext_resource type="Texture2D" uid="uid://bnabcgkgsuvtn" path="res://assets/ombre.svg" id="10_ombre"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0pf81"]
 
@@ -400,6 +401,14 @@ scale = Vector2(2, 2)
 collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_0s3u6")
+
+[node name="Ombre" type="Sprite2D" parent="." unique_id=418837535]
+self_modulate = Color(1, 1, 1, 0.3)
+visibility_layer = 2
+z_index = -2
+texture_filter = 1
+position = Vector2(0, 14)
+texture = ExtResource("10_ombre")
 
 [node name="player_collision" type="CollisionShape2D" parent="." unique_id=2004457516]
 shape = SubResource("CapsuleShape2D_0pf81")
