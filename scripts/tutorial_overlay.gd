@@ -106,9 +106,9 @@ func _build_ui() -> void:
 	dialogue_panel.visible = false
 	add_child(dialogue_panel)
 
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 20)
-	dialogue_panel.add_child(row)
+	var dialogue_row := HBoxContainer.new()
+	dialogue_row.add_theme_constant_override("separation", 20)
+	dialogue_panel.add_child(dialogue_row)
 
 	var portrait := TextureRect.new()
 	portrait.texture = PORTRAIT
@@ -116,10 +116,10 @@ func _build_ui() -> void:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	row.add_child(portrait)
+	dialogue_row.add_child(portrait)
 
 	var column := VBoxContainer.new()
-	row.add_child(column)
+	dialogue_row.add_child(column)
 
 	speaker_label = Label.new()
 	speaker_label.add_theme_font_size_override("font_size", 26)
