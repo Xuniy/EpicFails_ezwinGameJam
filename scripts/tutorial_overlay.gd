@@ -132,7 +132,7 @@ func _run() -> void:
 		func(): return _count("grenade") > 0)
 
 	await _say("Un petit groupe approche. Lance la grenade au milieu.")
-	var centre := player.global_position + Vector2(320, 0)
+	var centre: Vector2 = player.global_position + Vector2(320, 0)
 	var small: Array = [
 		_spawn_enemy(centre + Vector2(-50, -30), ""),
 		_spawn_enemy(centre + Vector2(50, -30), ""),
@@ -148,7 +148,7 @@ func _run() -> void:
 		func(): return _count("nuke") > 0)
 
 	await _say("Un gros groupe arrive. Lance l'egg bomba au centre des ennemis.")
-	var big_centre := player.global_position + Vector2(480, -120)
+	var big_centre: Vector2 = player.global_position + Vector2(480, -120)
 	var big: Array = []
 	for i in 8:
 		big.append(_spawn_enemy(big_centre + Vector2.RIGHT.rotated(TAU * i / 8.0) * 90.0, ""))
