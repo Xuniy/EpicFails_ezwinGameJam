@@ -314,6 +314,7 @@ func take_damage(amount: float) -> void:
 
 	if health <= 0.0:
 		print("[Player] Mort !")
+		EndScreen.show_end(get_tree(), "Chicken Norris est mort")
 		
 		
 func collect_item(item_type: String) -> bool:
