@@ -138,11 +138,9 @@ func cycle_item(step: int) -> void:
 	selected_index = posmod(selected_index + step, item_order.size())
 
 
-# Clic droit maintenu : lance-pierre. La souris tirée d'un côté envoie l'item du côté opposé ;
-# plus la traction est longue, plus il va loin. Clic gauche pour valider, relâcher le droit annule.
+# Clic droit maintenu : visée au curseur, l'item part vers la souris (jusqu'à max_distance).
+# Clic gauche pour lancer, relâcher le droit annule. Dézoom si le curseur sort de l'écran.
 var mouse_throw_item: String = ""
-var mouse_throw_anchor := Vector2.ZERO
-@export var sling_power: float = 1.0
 
 
 func is_item_aiming() -> bool:
@@ -154,18 +152,16 @@ func start_mouse_throw() -> void:
 		print("Aucun exemplaire de : ", selected_item)
 		return
 	mouse_throw_item = selected_item
-	mouse_throw_anchor = get_global_mouse_position()
 	_throw_zoom_active = true
 
 
-# Point visé par le lance-pierre, selon la position actuelle de la souris.
-func get_sling_target() -> Vector2:
+# Point visé : la souris, ramenée à la portée maximale de l'item (pas de traction).
+func get_throw_target() -> Vector2:
 	var origin := item_aim.global_position
-	var pull := get_global_mouse_position() - mouse_throw_anchor
-	if pull.length() < 1.0:
+	var offset := get_global_mouse_position() - origin
+	if offset.length() < 1.0:
 		return origin
-	var distance := minf(pull.length() * sling_power, item_aim.max_distance)
-	return origin - pull.normalized() * distance
+	return origin + offset.normalized() * minf(offset.length(), item_aim.max_distance)
 
 
 func cancel_mouse_throw() -> void:
@@ -177,7 +173,7 @@ func release_mouse_throw() -> void:
 	if mouse_throw_item == "":
 		return
 	var item := mouse_throw_item
-	var target := get_sling_target()
+	var target := get_throw_target()
 	mouse_throw_item = ""
 	use_item_at(item, target)
 
@@ -192,22 +188,27 @@ func _on_enemy_exited(body: Node2D) -> void:
 		body.return_to_coop()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var target: Vector2 = (item_aim.global_position+ item_aim.aim_direction * item_aim.distance)
 
 	if mouse_throw_item != "":
-		_last_throw_target = get_sling_target()
+		_last_throw_target = get_throw_target()
 	if _throw_zoom_active:
 		target = _last_throw_target
 	update_camera_zoom(
 		target,
-		is_item_aiming() or _throw_zoom_active
+		is_item_aiming() or _throw_zoom_active,
+		delta
 	)
 	
 
 
 
-func update_camera_zoom(target: Vector2, aiming: bool) -> void:
+# Vitesse du dézoom : lissée pour éviter les à-coups quand le curseur sort de l'écran.
+const ZOOM_SMOOTHNESS: float = 10.0
+
+
+func update_camera_zoom(target: Vector2, aiming: bool, delta: float) -> void:
 	var desired_zoom := normal_zoom
 
 	if Input.is_action_pressed("dezoom"):
@@ -242,7 +243,7 @@ func update_camera_zoom(target: Vector2, aiming: bool) -> void:
 
 		desired_zoom *= factor
 
-	camera.zoom = desired_zoom
+	camera.zoom = camera.zoom.lerp(desired_zoom, minf(1.0, delta * ZOOM_SMOOTHNESS))
 	camera.force_update_scroll()
 
 

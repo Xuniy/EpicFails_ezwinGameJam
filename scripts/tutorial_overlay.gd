@@ -249,9 +249,9 @@ func _is_done(entry: Dictionary) -> bool:
 		"pick":
 			return _count(entry["item"]) > 0
 		"use":
-			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"]
+			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"] and not _projectile_in_flight()
 		"use_kill":
-			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"] and _group_dead(entry["group"])
+			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"] and not _projectile_in_flight() and _group_dead(entry["group"])
 		"switch":
 			return entry.has("baseline") and player.selected_index != entry["baseline"]
 		"joint":
@@ -260,6 +260,14 @@ func _is_done(entry: Dictionary) -> bool:
 			return true
 	# Réplique bloquante : terminée quand la bulle est fermée.
 	return not dialogue_panel.visible
+
+
+# Vrai tant qu'un lancer est en l'air : téléport et explosion n'ont pas encore eu lieu.
+func _projectile_in_flight() -> bool:
+	for node in get_tree().get_nodes_in_group("projectiles"):
+		if not node.is_queued_for_deletion():
+			return true
+	return false
 
 
 func _show_bubble(text: String) -> void:

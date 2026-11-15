@@ -16,6 +16,7 @@ var exploded: bool = false
 
 
 func _ready() -> void:
+	add_to_group("projectiles")
 	$explo_grenade.hide()
 
 
