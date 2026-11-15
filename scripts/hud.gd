@@ -1,9 +1,13 @@
 extends Control
 
+# Bloc de la barre de joint : 130 px de haut, dont 106 px au-dessus du joint pour la fumée.
 const JOINT_SIZE := Vector2(144, 130)
+const JOINT_VISUAL_HEIGHT: float = 24.0   # 6 lignes de joint × échelle 4
+const JOINT_TOP: float = 6.0              # position du joint lui-même, près du bord haut
 const MARGIN: float = 16.0
 const GAP: float = 12.0
 const RHYTHM_WIDTH: float = 420.0
+const RHYTHM_HEIGHT: float = 70.0
 
 @onready var player = $"../../Player"
 @onready var poulailler = $"../../poulailler"
@@ -38,18 +42,19 @@ func update_health_bars() -> void:
 	coop_bar.value = poulailler.health
 
 
-# Barre de joint en haut à gauche, barres de vie juste en dessous.
+# Barre de joint tout en haut à gauche, barres de vie juste en dessous.
 func _layout_top_left() -> void:
 	joint_bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	joint_bar.size = JOINT_SIZE
-	joint_bar.position = Vector2(MARGIN, MARGIN)
-	health_box.position = Vector2(MARGIN, MARGIN + JOINT_SIZE.y + GAP)
+	# Le joint est dessiné en bas du bloc : on remonte le bloc pour que le joint soit en haut.
+	joint_bar.position = Vector2(MARGIN, JOINT_TOP - (JOINT_SIZE.y - JOINT_VISUAL_HEIGHT))
+	health_box.position = Vector2(MARGIN, JOINT_TOP + JOINT_VISUAL_HEIGHT + GAP)
 
 
 # Mini-jeu de rythme à côté de la barre de joint.
 func _add_rhythm_game() -> void:
 	var rhythm := RhythmGame.new()
 	rhythm.joint = joint_bar
-	rhythm.position = Vector2(MARGIN + JOINT_SIZE.x + MARGIN, MARGIN)
-	rhythm.size = Vector2(RHYTHM_WIDTH, JOINT_SIZE.y)
+	rhythm.position = Vector2(MARGIN + JOINT_SIZE.x + MARGIN, JOINT_TOP)
+	rhythm.size = Vector2(RHYTHM_WIDTH, RHYTHM_HEIGHT)
 	add_child(rhythm)

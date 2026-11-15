@@ -69,6 +69,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if active:
+		# La même touche que pour l'ouvrir ferme le mini-jeu.
+		if event.button_index == START_BUTTON:
+			_close()
+			get_viewport().set_input_as_handled()
+			return
 		var lane: int = LANE_BUTTONS.find(event.button_index)
 		if lane != -1:
 			_try_hit(lane)
@@ -112,6 +117,15 @@ func _try_hit(lane: int) -> void:
 	best.state = 1
 	# 5 secondes sur la durée du joint (plafonné à 100 %).
 	joint.amount = minf(1.0, joint.amount + SECONDS_PER_HIT / joint.duration)
+	# Joint plein : le mini-jeu se ferme tout seul.
+	if joint.amount >= 1.0:
+		_close()
+
+
+func _close() -> void:
+	active = false
+	result_timer = 0.0
+	visible = false
 
 
 func _finish() -> void:
