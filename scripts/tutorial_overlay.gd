@@ -19,6 +19,8 @@ const FROZEN_DURATION: float = 1.0e9
 # Centre de l'enceinte du poulailler (relatif à son origine) et rayon à garder libre d'ennemis.
 const POULAILLER_CENTER := Vector2(-80.0, 140.0)
 const SAFE_RADIUS: float = 560.0
+# Étape du joint validée quand le joint est presque plein (le mini-jeu se ferme à 100 %).
+const JOINT_DONE_AMOUNT: float = 0.95
 
 # Référence untyped volontairement : les méthodes du joueur et du HUD sont appelées dynamiquement.
 var player
@@ -221,8 +223,6 @@ func _start_objective(entry: Dictionary) -> void:
 			entry["baseline"] = _count(entry["item"])
 		"switch":
 			entry["baseline"] = player.selected_index
-		"joint":
-			entry["baseline"] = joint.amount if joint != null else 0.0
 	var say: String = entry.get("say", "")
 	if say != "":
 		_show_bubble(say)
@@ -241,10 +241,7 @@ func _is_done(entry: Dictionary) -> bool:
 		"switch":
 			return entry.has("baseline") and player.selected_index != entry["baseline"]
 		"joint":
-			# Fini dès qu'une bonne touche a fait monter le joint (ou joint plein).
-			if joint == null or joint.amount >= 1.0:
-				return true
-			return entry.has("baseline") and joint.amount > entry["baseline"] + 0.05
+			return joint == null or joint.amount >= JOINT_DONE_AMOUNT
 		"always":
 			return true
 	# Réplique bloquante : terminée quand la bulle est fermée.
