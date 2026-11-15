@@ -7,6 +7,7 @@ extends Control
 @onready var coop_bar: HealthBar = $VBoxContainer/viepoulailler
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
+@onready var joint_bar = $JointBar
 
 
 func _ready() -> void:
@@ -15,6 +16,12 @@ func _ready() -> void:
 
 	compass.target = poulailler
 	hotbar.player = player
+
+	# Mini-jeu de rythme pour fumer (croix haut), superposé au HUD.
+	var rhythm := RhythmGame.new()
+	rhythm.joint = joint_bar
+	rhythm.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(rhythm)
 
 	update_health_bars()
 
