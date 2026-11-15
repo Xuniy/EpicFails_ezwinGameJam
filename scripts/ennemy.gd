@@ -15,6 +15,7 @@ const WALK_ANIMATIONS = [
 
 @export var speed: float = 80.0
 @export var health: float = 15.0
+@export_range(-40.0, 0.0, 1.0) var sound_volume_db: float = -6.0
 @export var damage: float = 2.0
 @export var stop_distance: float = 24.0
 @export var attack_distance: float = 120
@@ -126,7 +127,7 @@ func take_damage(amount: float) -> void:
 		return
 	spawn_hit_particles()
 	health -= amount
-	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self)
+	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self, sound_volume_db)
 
 	if health <= 0.0:
 		drop_item()
@@ -145,7 +146,7 @@ func spawn_hit_particles() -> void:
 
 func attack(victim: Node2D) -> void:
 	is_attacking = true
-	SOUND_EFFECT.play_at(ATTACK_SOUND, self)
+	SOUND_EFFECT.play_at(ATTACK_SOUND, self, sound_volume_db)
 	velocity = Vector2.ZERO
 	update_animation(global_position.direction_to(victim.global_position), false)
 

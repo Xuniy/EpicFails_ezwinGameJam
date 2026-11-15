@@ -15,6 +15,7 @@ const WALK_ANIMATIONS = [
 
 @export var speed: float = 80.0
 @export var health: float = 15.0
+@export_range(-40.0, 0.0, 1.0) var sound_volume_db: float = -6.0
 
 # Objet forcé à la mort (tutoriel). Vide = drop aléatoire.
 var forced_drop: String = ""
@@ -124,7 +125,7 @@ func start_dash() -> void:
 	# La direction reste verrouillée jusqu'à la fin de la charge.
 	dash_remaining = maxf(dash_duration, 0.01)
 	is_attacking = true
-	SOUND_EFFECT.play_at(ATTACK_SOUND, self)
+	SOUND_EFFECT.play_at(ATTACK_SOUND, self, sound_volume_db)
 	velocity = dash_direction * dash_speed
 	update_animation(dash_direction, true)
 	spawn_dash_effect()
@@ -220,7 +221,7 @@ func take_damage(amount: float) -> void:
 		return
 	spawn_hit_particles()
 	health -= amount
-	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self)
+	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self, sound_volume_db)
 	if health <= 0.0:
 		dead = true
 		drop_item()

@@ -2,6 +2,7 @@ extends Control
 
 @export_range(0.0, 1.0, 0.05) var damage_overlay_opacity: float = 0.7
 @export_range(0.0, 2.0, 0.05) var damage_overlay_fade_time: float = 0.5
+@export_range(0.0, 1.0, 0.05) var low_weed_threshold: float = 0.2
 
 # Bloc de la barre de joint : 130 px de haut, dont 106 px au-dessus du joint pour la fumée.
 const JOINT_SIZE := Vector2(144, 130)
@@ -19,6 +20,7 @@ const EMPTY_JOINT_INTERVAL: float = 2.0
 @onready var player_bar: HealthBar = $PlayerHealth/vieplayer
 @onready var coop_bar: HealthBar = $CoopHealth/viepoulailler
 @onready var joint_bar = $JointBar
+@onready var low_weed_message: Label = $LowWeedMessage
 @onready var rhythm: RhythmGame = $RhythmGame
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
@@ -27,6 +29,7 @@ const EMPTY_JOINT_INTERVAL: float = 2.0
 var _damage_tween: Tween
 
 var _empty_joint_timer: float = 0.0
+var _low_weed_blink_time: float = 0.0
 
 
 func _ready() -> void:
@@ -45,6 +48,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	low_weed_message.visible = joint_bar.amount <= low_weed_threshold
+	if low_weed_message.visible:
+		_low_weed_blink_time += delta
+		low_weed_message.modulate.a = 0.65 + 0.35 * cos(_low_weed_blink_time * TAU * 1.5)
+	else:
+		_low_weed_blink_time = 0.0
+		low_weed_message.modulate.a = 1.0
 	_update_empty_joint_damage(delta)
 	update_health_bars()
 

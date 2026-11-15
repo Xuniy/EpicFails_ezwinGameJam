@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://r4roffodcp2i" path="res://scripts/hud.gd" id="4_q6hbb"]
 [ext_resource type="Script" uid="uid://ckrhaauongya6" path="res://scripts/hotbar.gd" id="5_hotbar"]
 [ext_resource type="Script" uid="uid://bcfvw761wwc4x" path="res://scripts/compass.gd" id="6_compass"]
-[ext_resource type="PackedScene" uid="uid://bsy8uy8p02vny" path="res://scences/farm_tilemap.tscn" id="6_tavpr"]
+[ext_resource type="PackedScene" path="res://scences/farm_tilemap.tscn" id="6_tavpr"]
 [ext_resource type="PackedScene" uid="uid://xb3hdp3hsnf4" path="res://scences/poulailler.tscn" id="6_vvdkv"]
 [ext_resource type="Script" uid="uid://bdyc2yfvj2ua0" path="res://scripts/health_bar.gd" id="7_healthbar"]
 [ext_resource type="Texture2D" uid="uid://c0yt51sccwv5q" path="res://assets/Health_01.png" id="8_frame_player"]
@@ -49,6 +49,31 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_q6hbb")
+
+[node name="LowWeedMessage" type="Label" parent="UI_en_sah/HUD" unique_id=1276370576]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -48.0
+offset_right = 450.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+text = "need some weed !"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 72
 
 [node name="Sang" type="TextureRect" parent="UI_en_sah/HUD" unique_id=1348476397]
 modulate = Color(1, 1, 1, 0)
@@ -135,6 +160,8 @@ offset_left = -210.0
 offset_top = -228.0
 offset_right = 210.0
 offset_bottom = -158.0
+grow_horizontal = 2
+grow_vertical = 0
 joint = NodePath("../JointBar")
 note_speed = 220.0
 

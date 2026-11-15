@@ -4,6 +4,7 @@ const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
 const DAMAGE_SOUND = preload("res://sounds/degats_poulailler.wav")
 
 @export var max_health: float = 500.0
+@export_range(-40.0, 0.0, 1.0) var sound_volume_db: float = -12.0
 @export_range(0.0, 1.0, 0.05) var occluded_opacity: float = 0.3
 @export_range(0.0, 1.0, 0.05) var fade_duration: float = 0.15
 @onready var health: float = max_health
@@ -42,7 +43,7 @@ func take_damage(amount: float) -> void:
 
 	health = clampf(health - amount, 0.0, max_health)
 	if amount > 0.0:
-		SOUND_EFFECT.play_at(DAMAGE_SOUND, self)
+		SOUND_EFFECT.play_at(DAMAGE_SOUND, self, sound_volume_db)
 	print("[Poulailler] Vie : ", health, "/", max_health)
 
 	if health <= 0.0:

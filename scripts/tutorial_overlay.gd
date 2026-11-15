@@ -7,6 +7,7 @@ enum Phase { EXPLANATION, WAIT_RELEASE, ACTION, COMPLETE, DONE }
 
 const DIALOGUE_SCENE := preload("res://scences/dialogue_box.tscn")
 const TARGET_SCENE := preload("res://scences/tutorial_target.tscn")
+const ITEM_SCENE := preload("res://scences/item_au_sol.tscn")
 const REQUIRED_HITS: int = 3
 const POULAILLER_CENTER := Vector2(-80.0, 140.0)
 const SAFE_RADIUS: float = 560.0
@@ -14,7 +15,7 @@ const SAFE_RADIUS: float = 560.0
 # Les textes restent regroupés ici ; la présentation reste dans dialogue_box.tscn.
 const INSTRUCTIONS := [
 	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nPC : vise à la souris et tire avec le clic gauche.\nManette : vise au stick droit et tire avec RT.\nDéplacement : ZQSD / WASD sur PC, stick gauche à la manette.",
-	"2/3 — Sélectionne la perle et téléporte-toi vers un endroit libre.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
+	"2/3 — Ramasse l’Egg Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
 	"3/3 — Réussis 3 notes pour apprendre à fumer.\nPC : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B.\nLes ratés ne remettent pas tes réussites à zéro.",
 	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : dégâts autour de l’impact. Nuke : élimine les ennemis dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
 ]
@@ -28,6 +29,7 @@ var rhythm
 var enemies_root: Node
 var spawn_timer: Timer
 var training_target: Node2D
+var training_pearl: Area2D
 var dialogue_panel: Control
 var dialogue_label: Label
 var dialogue_hint: Label
@@ -151,6 +153,9 @@ func _process(_delta: float) -> void:
 					_activate_action()
 		Phase.COMPLETE:
 			_enter_explanation((int(step) + 1) as Step)
+		Phase.ACTION:
+			if step == Step.TELEPORT:
+				dialogue_hint.text = "Objectif : réussis une téléportation." if player.items["tp"] > 0 else "Objectif : avance sur l’Egg Pearl pour la ramasser."
 
 
 func _controls_released() -> bool:
@@ -187,14 +192,44 @@ func _activate_action() -> void:
 			_spawn_target()
 			dialogue_hint.text = "Objectif : élimine la cible."
 		Step.TELEPORT:
-			player.items["tp"] = 1
 			player.selected_index = player.item_order.find("grenade")
-			dialogue_hint.text = "Objectif : réussis une téléportation."
+			_spawn_pearl()
+			dialogue_hint.text = "Objectif : avance sur l’Egg Pearl pour la ramasser."
 		Step.SMOKE:
 			joint.amount = 0.2
 			successful_hits = 0
 			dialogue_hint.text = "Réussites : 0 / 3"
 	get_tree().paused = false
+
+
+func _spawn_pearl() -> void:
+	if is_instance_valid(training_pearl):
+		training_pearl.queue_free()
+	var direction: Vector2 = player.facing_direction.normalized()
+	if direction.is_zero_approx():
+		direction = Vector2.DOWN
+	var spawn_position: Vector2 = player.global_position + direction * 120.0
+	var shape := CircleShape2D.new()
+	shape.radius = 16.0
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.collision_mask = 3
+	query.exclude = [player.get_rid()]
+	var found := false
+	for distance in [120.0, 180.0, 80.0]:
+		for angle in [0.0, PI / 4.0, -PI / 4.0, PI / 2.0, -PI / 2.0, PI]:
+			var candidate: Vector2 = player.global_position + direction.rotated(angle) * distance
+			query.transform = Transform2D(0.0, candidate)
+			if player.get_world_2d().direct_space_state.intersect_shape(query).is_empty():
+				spawn_position = candidate
+				found = true
+				break
+		if found:
+			break
+	training_pearl = ITEM_SCENE.instantiate()
+	training_pearl.item_type = "tp"
+	get_tree().current_scene.add_child(training_pearl)
+	training_pearl.global_position = spawn_position
 
 
 func _spawn_target() -> void:
@@ -247,9 +282,10 @@ func _on_teleport_finished(succeeded: bool, origin: Vector2, destination: Vector
 	if succeeded and origin.distance_to(destination) >= 24.0:
 		_complete_action()
 	else:
-		player.items["tp"] = maxi(player.items["tp"], 1)
+		if player.items["tp"] == 0:
+			_spawn_pearl()
 		player.cycle_item(0)
-		dialogue_hint.text = "Perle redonnée : vise plus loin, dans un endroit libre."
+		dialogue_hint.text = "Ramasse la perle et vise plus loin, dans un endroit libre."
 
 
 func _on_rhythm_hit() -> void:
@@ -294,6 +330,8 @@ func _restore_runtime() -> void:
 		rhythm._close()
 	if is_instance_valid(training_target) and not training_target.is_queued_for_deletion():
 		training_target.queue_free()
+	if is_instance_valid(training_pearl) and not training_pearl.is_queued_for_deletion():
+		training_pearl.queue_free()
 	if is_instance_valid(enemies_root):
 		enemies_root.process_mode = _saved_enemy_process_mode
 	if is_instance_valid(spawn_timer) and _spawner_was_running:
