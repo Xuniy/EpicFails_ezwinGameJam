@@ -1,23 +1,32 @@
 class_name TutorialOverlay
 extends CanvasLayer
 
-## Tutoriel scénarisé en jeu, guidé par Maître Coq. Chaque étape attend que le joueur
-## fasse l'action (tuer, ramasser, utiliser un objet). La mission reste en haut au centre ensuite.
+## Tutoriel scénarisé en jeu, guidé par Maître Coq. Pas de coroutines : une file d'entrées
+## traitée dans _process, qui s'arrête proprement si la scène change.
+## Une bulle ne bloque pas le jeu, sauf les répliques d'introduction. Une étape déjà
+## accomplie est sautée, bulle comprise.
 
 const ENEMY_SCENE := preload("res://scences/ennemy.tscn")
 const ICON_MOUSE := preload("res://assets/tutoriel/mouse.png")
 const ICON_RT := preload("res://assets/tutoriel/xbox_rt.png")
 const ICON_LT := preload("res://assets/tutoriel/xbox_lt.png")
+const ICON_LB := preload("res://assets/tutoriel/xbox_lb.png")
 const SPEAKER := "Maître Coq"
 const ICON_SIZE: float = 42.0
+const BUBBLE_TIME: float = 8.0
+# Joint figé pendant le tutoriel : durée énorme = décroissance quasi nulle.
+const FROZEN_DURATION: float = 1.0e9
 
 # Référence untyped volontairement : les méthodes du joueur et du HUD sont appelées dynamiquement.
 var player
 var joint
 var enemies_root: Node
 var is_xbox: bool = false
-var _advance: bool = false
-var _waiting_advance: bool = false
+var joint_duration: float = 45.0
+var groups: Dictionary = {}
+var queue: Array = []
+var current: Dictionary = {}
+var bubble_timer: float = 0.0
 
 var mission_label: Label
 var mission_icon: TextureRect
@@ -34,13 +43,18 @@ func _ready() -> void:
 		return
 
 	joint = scene.find_child("JointBar", true, false)
+	if joint:
+		joint_duration = joint.duration
+		joint.duration = FROZEN_DURATION
+		joint.amount = 1.0
 	enemies_root = scene.get_node_or_null("Enemies")
 	if enemies_root == null:
 		enemies_root = scene
 	is_xbox = GameState.input_device == GameState.DEVICE_XBOX
 
 	_build_ui()
-	_run()
+	_set_spawner(false)
+	queue = _build_script()
 
 
 func _build_ui() -> void:
@@ -87,6 +101,7 @@ func _build_ui() -> void:
 	speaker_label = Label.new()
 	speaker_label.add_theme_font_size_override("font_size", 26)
 	speaker_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.3))
+	speaker_label.text = SPEAKER
 	column.add_child(speaker_label)
 
 	dialogue_label = Label.new()
@@ -101,101 +116,139 @@ func _build_ui() -> void:
 	column.add_child(hint)
 
 
-# Scénario : cible -> pearl -> second ennemi -> grenade sur petit groupe -> bomba sur gros groupe -> joint -> mission.
-func _run() -> void:
-	_set_spawner(false)
-
-	await _say("Chicken Norris ! Des renards et des fermiers attaquent notre poulailler.")
-	await _say("Ton but : le protéger. Si ta vie ou celle du poulailler tombe à zéro, c'est perdu.")
-	await _say("Commence par t'entraîner. Une cible apparaît devant toi.")
-
-	var target: int = _spawn_enemy(player.global_position + Vector2(300, 0), "tp")
-	await _objective("Tire sur l'ennemi devant toi (clic gauche).", "Tire sur l'ennemi devant toi (RT).",
-		ICON_MOUSE, ICON_RT, func(): return _dead(target))
-
-	await _say("Bien visé ! Il a laissé une eggder pearl.")
-	await _objective("Ramasse l'eggder pearl.", "Ramasse l'eggder pearl.", null, null,
-		func(): return _count("tp") > 0)
-	await _say("L'eggder pearl te téléporte au point visé, si la place est libre.")
-	var pearl_count := _count("tp")
-	await _objective("Lance l'eggder pearl : clic droit maintenu, puis clic gauche.",
-		"Lance l'eggder pearl : LT maintenu, puis RT.", ICON_MOUSE, ICON_LT,
-		func(): return _count("tp") < pearl_count)
-
-	await _say("Un second ennemi approche, il a laissé une grenade.")
-	var second: int = _spawn_enemy(player.global_position + Vector2(-260, -160), "grenade")
-	await _objective("Tue le second ennemi (clic gauche).", "Tue le second ennemi (RT).",
-		ICON_MOUSE, ICON_RT, func(): return _dead(second))
-
-	await _say("La grenade explose à sa chute et blesse les ennemis proches.")
-	await _objective("Ramasse la grenade.", "Ramasse la grenade.", null, null,
-		func(): return _count("grenade") > 0)
-
-	await _say("Un petit groupe approche. Lance la grenade au milieu.")
-	var centre: Vector2 = player.global_position + Vector2(320, 0)
-	var small: Array = [
-		_spawn_enemy(centre + Vector2(-50, -30), ""),
-		_spawn_enemy(centre + Vector2(50, -30), ""),
-		_spawn_enemy(centre + Vector2(0, 45), "nuke"),
+# Scénario. "say" = réplique ; "do" = action ; "objective" = étape (sautée si déjà accomplie).
+func _build_script() -> Array:
+	return [
+		{"type": "say", "blocking": true, "text": "Chicken Norris ! Des renards et des fermiers attaquent notre poulailler."},
+		{"type": "say", "blocking": true, "text": "Ton but : le protéger. Si ta vie ou celle du poulailler tombe à zéro, c'est perdu."},
+		{"type": "say", "blocking": true, "text": "Commence par t'entraîner. Une cible apparaît devant toi."},
+		{"type": "do", "run": Callable(self, "_wave_target")},
+		{"type": "objective", "kind": "kill", "group": "target",
+			"pc": "Tire sur la cible devant toi (clic gauche).", "xbox": "Tire sur la cible devant toi (RT).",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_RT, "say": ""},
+		{"type": "objective", "kind": "pick", "item": "tp",
+			"pc": "Ramasse l'eggder pearl.", "xbox": "Ramasse l'eggder pearl.",
+			"say": "Elle a laissé une eggder pearl : ramasse-la en marchant dessus."},
+		{"type": "objective", "kind": "use", "item": "tp",
+			"pc": "Lance l'eggder pearl : clic droit maintenu, puis clic gauche.",
+			"xbox": "Lance l'eggder pearl : LT maintenu, puis RT.",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_LT,
+			"say": "L'eggder pearl te téléporte au point visé, si la place est libre."},
+		{"type": "objective", "kind": "switch",
+			"pc": "Change d'objet : molette de la souris.", "xbox": "Change d'objet : LB ou RB.",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_LB,
+			"say": "Change d'objet avec la molette, ou avec LB et RB à la manette."},
+		{"type": "do", "run": Callable(self, "_wave_second")},
+		{"type": "objective", "kind": "kill", "group": "second",
+			"pc": "Tue le second ennemi (clic gauche).", "xbox": "Tue le second ennemi (RT).",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_RT,
+			"say": "Un second ennemi approche."},
+		{"type": "objective", "kind": "pick", "item": "grenade",
+			"pc": "Ramasse la grenade.", "xbox": "Ramasse la grenade.",
+			"say": "Il a laissé une grenade. Elle explose à sa chute et blesse les ennemis proches."},
+		{"type": "do", "run": Callable(self, "_wave_small")},
+		{"type": "objective", "kind": "use_kill", "item": "grenade", "group": "small",
+			"pc": "Lance la grenade sur le petit groupe : clic droit, puis clic gauche.",
+			"xbox": "Lance la grenade sur le petit groupe : LT, puis RT.",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_LT,
+			"say": "Un petit groupe approche. Lance la grenade au milieu."},
+		{"type": "objective", "kind": "pick", "item": "nuke",
+			"pc": "Ramasse l'egg bomba.", "xbox": "Ramasse l'egg bomba.",
+			"say": "Un ennemi a laissé une egg bomba : elle élimine tous les ennemis de son rayon."},
+		{"type": "do", "run": Callable(self, "_wave_big")},
+		{"type": "objective", "kind": "use_kill", "item": "nuke", "group": "big",
+			"pc": "Lance l'egg bomba sur le gros groupe : clic droit, puis clic gauche.",
+			"xbox": "Lance l'egg bomba sur le gros groupe : LT, puis RT.",
+			"icon_pc": ICON_MOUSE, "icon_xbox": ICON_LT,
+			"say": "Un gros groupe arrive. Lance l'egg bomba au centre."},
+		{"type": "do", "run": Callable(self, "_joint_setup")},
+		{"type": "objective", "kind": "joint",
+			"pc": "Fume : touche A, puis 1, 2, 3 ou 4 au bon moment.",
+			"xbox": "Fume : croix haut, puis Y, X, A ou B au bon moment.",
+			"say": "Ton joint est presque vide : vide, il te fait perdre de la vie. Chaque bonne touche ajoute 5 secondes."},
+		{"type": "say", "blocking": true, "text": "Parfait. Tu es prêt. Protège le poulailler !"},
+		{"type": "do", "run": Callable(self, "_finish")},
+		{"type": "objective", "kind": "always",
+			"pc": "Protège le poulailler.", "xbox": "Protège le poulailler."},
 	]
-	var grenade_count := _count("grenade")
-	await _objective("Lance la grenade sur le petit groupe : clic droit, puis clic gauche.",
-		"Lance la grenade sur le petit groupe : LT, puis RT.", ICON_MOUSE, ICON_LT,
-		func(): return _count("grenade") < grenade_count and _all_dead(small))
-
-	await _say("Un des ennemis a laissé une egg bomba. Elle élimine tous les ennemis de son rayon.")
-	await _objective("Ramasse l'egg bomba.", "Ramasse l'egg bomba.", null, null,
-		func(): return _count("nuke") > 0)
-
-	await _say("Un gros groupe arrive. Lance l'egg bomba au centre des ennemis.")
-	var big_centre: Vector2 = player.global_position + Vector2(480, -120)
-	var big: Array = []
-	for i in 8:
-		big.append(_spawn_enemy(big_centre + Vector2.RIGHT.rotated(TAU * i / 8.0) * 90.0, ""))
-	var nuke_count := _count("nuke")
-	await _objective("Lance l'egg bomba sur le gros groupe : clic droit, puis clic gauche.",
-		"Lance l'egg bomba sur le gros groupe : LT, puis RT.", ICON_MOUSE, ICON_LT,
-		func(): return _count("nuke") < nuke_count and _all_dead(big))
-
-	await _say("Ton joint est presque vide. Quand il est vide, tu perds de la vie.")
-	if joint:
-		joint.amount = 0.2
-	await _say("Chaque bonne touche au bon moment ajoute cinq secondes au joint.")
-	await _objective("Fume : touche A, puis 1, 2, 3 ou 4 au bon moment.",
-		"Fume : croix haut, puis Y, X, A ou B au bon moment.", null, null,
-		func(): return joint == null or joint.amount >= 1.0)
-
-	await _say("Parfait. Tu es prêt. Protège le poulailler !")
-	_set_spawner(true)
-	await _objective("Protège le poulailler.", "Protège le poulailler.", null, null,
-		func(): return true)
 
 
-# Attend un appui sur Entrée, A ou clic gauche, puis masque la bulle.
-func _say(text: String) -> void:
-	speaker_label.text = SPEAKER
-	dialogue_label.text = text
-	dialogue_panel.visible = true
-	_advance = false
-	_waiting_advance = true
-	while not _advance:
-		await get_tree().process_frame
-	_waiting_advance = false
-	dialogue_panel.visible = false
+func _process(delta: float) -> void:
+	if bubble_timer > 0.0:
+		bubble_timer -= delta
+		if bubble_timer <= 0.0:
+			dialogue_panel.visible = false
+
+	if not current.is_empty():
+		if _is_done(current):
+			current = {}
+		return
+	_next()
 
 
-# Affiche l'objectif (texte et icône selon l'appareil), puis attend que la condition soit remplie.
-func _objective(text_pc: String, text_xbox: String, icon_pc: Texture2D, icon_xbox: Texture2D, done: Callable) -> void:
-	mission_label.text = text_xbox if is_xbox else text_pc
-	var icon: Texture2D = icon_xbox if is_xbox else icon_pc
+# Traite la file jusqu'à la prochaine étape active ou réplique bloquante.
+func _next() -> void:
+	while not queue.is_empty():
+		var entry: Dictionary = queue.pop_front()
+		match entry["type"]:
+			"do":
+				entry["run"].call()
+			"say":
+				_show_bubble(entry["text"])
+				if entry.get("blocking", false):
+					current = {"type": "bubble_wait"}
+					return
+			"objective":
+				if _is_done(entry):
+					continue
+				_start_objective(entry)
+				current = entry
+				return
+
+
+func _start_objective(entry: Dictionary) -> void:
+	mission_label.text = entry["xbox"] if is_xbox else entry["pc"]
+	var icon: Texture2D = entry.get("icon_xbox") if is_xbox else entry.get("icon_pc")
 	mission_icon.texture = icon
 	mission_icon.visible = icon != null
-	while not done.call():
-		await get_tree().process_frame
+	match entry["kind"]:
+		"use", "use_kill":
+			entry["baseline"] = _count(entry["item"])
+		"switch":
+			entry["baseline"] = player.selected_index
+	var say: String = entry.get("say", "")
+	if say != "":
+		_show_bubble(say)
+
+
+func _is_done(entry: Dictionary) -> bool:
+	match entry.get("kind", ""):
+		"kill":
+			return _group_dead(entry["group"])
+		"pick":
+			return _count(entry["item"]) > 0
+		"use":
+			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"]
+		"use_kill":
+			return entry.has("baseline") and _count(entry["item"]) < entry["baseline"] and _group_dead(entry["group"])
+		"switch":
+			return entry.has("baseline") and player.selected_index != entry["baseline"]
+		"joint":
+			return joint == null or joint.amount >= 1.0
+		"always":
+			return true
+	# Réplique bloquante : terminée quand la bulle est fermée.
+	return not dialogue_panel.visible
+
+
+func _show_bubble(text: String) -> void:
+	dialogue_label.text = text
+	dialogue_panel.visible = true
+	bubble_timer = BUBBLE_TIME
 
 
 func _input(event: InputEvent) -> void:
-	if not _waiting_advance:
+	if not dialogue_panel.visible:
 		return
 	var pressed := false
 	if event is InputEventKey:
@@ -208,8 +261,46 @@ func _input(event: InputEvent) -> void:
 		var click := event as InputEventMouseButton
 		pressed = click.pressed and click.button_index == MOUSE_BUTTON_LEFT
 	if pressed:
-		_advance = true
+		dialogue_panel.visible = false
+		bubble_timer = 0.0
 		get_viewport().set_input_as_handled()
+
+
+# Vagues : positions relatives au joueur, au moment où l'étape commence.
+func _wave_target() -> void:
+	groups["target"] = [_spawn_enemy(player.global_position + Vector2(300, 0), "tp")]
+
+
+func _wave_second() -> void:
+	groups["second"] = [_spawn_enemy(player.global_position + Vector2(-260, -160), "grenade")]
+
+
+func _wave_small() -> void:
+	var centre: Vector2 = player.global_position + Vector2(320, 0)
+	groups["small"] = [
+		_spawn_enemy(centre + Vector2(-50, -30), ""),
+		_spawn_enemy(centre + Vector2(50, -30), ""),
+		_spawn_enemy(centre + Vector2(0, 45), "nuke"),
+	]
+
+
+func _wave_big() -> void:
+	var centre: Vector2 = player.global_position + Vector2(480, -120)
+	var big: Array = []
+	for i in 8:
+		big.append(_spawn_enemy(centre + Vector2.RIGHT.rotated(TAU * i / 8.0) * 90.0, ""))
+	groups["big"] = big
+
+
+# Rétablit la décroissance du joint et le remplit à 20 % pour le mini-jeu.
+func _joint_setup() -> void:
+	if joint:
+		joint.duration = joint_duration
+		joint.amount = 0.2
+
+
+func _finish() -> void:
+	_set_spawner(true)
 
 
 func _spawn_enemy(pos: Vector2, drop: String) -> int:
@@ -223,18 +314,22 @@ func _spawn_enemy(pos: Vector2, drop: String) -> int:
 	return enemy.get_instance_id()
 
 
-# Reçoit un identifiant d'instance : pas de capture d'objet libéré dans les lambdas.
+# Reçoit un identifiant d'instance : pas de référence vers un objet libéré.
 func _dead(id: int) -> bool:
 	if not is_instance_id_valid(id):
 		return true
 	return (instance_from_id(id) as Node).is_queued_for_deletion()
 
 
-func _all_dead(enemies: Array) -> bool:
-	for enemy in enemies:
-		if not _dead(enemy):
+func _all_dead(ids: Array) -> bool:
+	for id in ids:
+		if not _dead(id):
 			return false
 	return true
+
+
+func _group_dead(group_name: String) -> bool:
+	return groups.has(group_name) and _all_dead(groups[group_name])
 
 
 func _count(item: String) -> int:
