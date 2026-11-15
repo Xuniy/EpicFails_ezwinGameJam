@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal hit_received
+
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
 	&"walk_left", &"walk_up_left", &"walk_up", &"walk_up_right"
@@ -8,6 +10,7 @@ const ITEM_LANCE_SCENE = preload("res://scences/item_lance.tscn")
 const NUKE_SCENE = preload("res://scences/nuke.tscn")
 const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
 const TELEPORT_SOUND = preload("res://sounds/bruit_tp.wav")
+const TELEPORT_EFFECT = preload("res://scences/teleport_effect.tscn")
 const WALK_SOUND = preload("res://sounds/marche_player.wav")
 const DAMAGE_SOUND = preload("res://sounds/degats_player.wav")
 
@@ -51,6 +54,7 @@ var _last_mouse_position := Vector2.ZERO
 var _right_was_down: bool = false
 var _left_was_down: bool = false
 var _left_consumed: bool = false
+var _throw_trigger_held: bool = false
 # Dézoom du lancer : reste actif jusqu'au relâchement du clic droit, même après validation.
 var _throw_zoom_active: bool = false
 var _last_throw_target := Vector2.ZERO
@@ -76,9 +80,13 @@ func _ready() -> void:
 	
 # Molette lue avant l'interface : un Control ne peut pas la bloquer.
 func _input(event: InputEvent) -> void:
+	if event.is_action_released("tir"):
+		# Une gâchette analogique doit revenir au repos pour autoriser un autre lancer.
+		if not event is InputEventJoypadMotion or absf(event.axis_value) <= 0.05:
+			_throw_trigger_held = false
 	if event is InputEventMouseButton:
 		var click := event as InputEventMouseButton
-		if click.pressed and not aiming_item:
+		if click.pressed:
 			if click.button_index == MOUSE_BUTTON_WHEEL_UP:
 				cycle_item(-1)
 			elif click.button_index == MOUSE_BUTTON_WHEEL_DOWN:
@@ -102,6 +110,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Appuyer sur un AUTRE bouton pour lancer.
 	elif event.is_action_pressed("tir"):
+		if _throw_trigger_held:
+			return
+		_throw_trigger_held = true
 		if aiming_item and Input.is_action_pressed("use_item"):
 			var target: Vector2 = (
 				item_aim.global_position
@@ -113,16 +124,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			if items[pending_item] <= 0:
 				aiming_item = false
 
-	elif not aiming_item:
-		if event.is_action_pressed("ui_droite"):
-			selected_index = posmod(
-				selected_index + 1, item_order.size()
-			)
-
-		elif event.is_action_pressed("ui_gauche"):
-			selected_index = posmod(
-				selected_index - 1, item_order.size()
-			)
+	elif event.is_action_pressed("ui_droite"):
+		cycle_item(1)
+	elif event.is_action_pressed("ui_gauche"):
+		cycle_item(-1)
 func is_mouse_aiming() -> bool:
 	return mouse_aim_active
 
@@ -146,6 +151,11 @@ func is_firing() -> bool:
 
 func cycle_item(step: int) -> void:
 	selected_index = posmod(selected_index + step, item_order.size())
+	if Input.is_action_pressed("use_item"):
+		pending_item = selected_item
+		aiming_item = items[selected_item] > 0
+	if mouse_throw_item != "":
+		mouse_throw_item = selected_item if items[selected_item] > 0 else ""
 
 
 # Clic droit maintenu : lance-pierre. La souris tirée d'un côté envoie l'item du côté opposé ;
@@ -325,11 +335,14 @@ func update_animation(direction: Vector2) -> void:
 		animated_sprite.play(WALK_ANIMATIONS[sector])
 	update_smoke_position()
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, show_hit_effect: bool = true) -> void:
 	if health <= 0.0:
 		return
 
+	var previous_health := health
 	health = clampf(health - amount, 0.0, max_health)
+	if show_hit_effect and health < previous_health:
+		hit_received.emit()
 	if amount > 0.0 and health > 0.0:
 		SOUND_EFFECT.play_at(DAMAGE_SOUND, self)
 	print("[Player] Vie : ", health, "/", max_health)
@@ -382,7 +395,11 @@ func teleport_to(target: Vector2) -> bool:
 	if not obstacles.is_empty():
 		return false
 
+	var origin := global_position
 	global_position = target
+	var effect = TELEPORT_EFFECT.instantiate()
+	get_tree().current_scene.add_child(effect)
+	effect.setup(origin, target, animated_sprite)
 	SOUND_EFFECT.play_at(TELEPORT_SOUND, self)
 	return true
 func use_item_at(item_type: String, target: Vector2) -> void:

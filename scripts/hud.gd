@@ -25,7 +25,6 @@ const EMPTY_JOINT_INTERVAL: float = 2.0
 @onready var hotbar = $Hotbar
 @onready var blood_overlay: TextureRect = $Sang
 
-var _previous_player_health: float
 var _damage_tween: Tween
 
 var _empty_joint_timer: float = 0.0
@@ -37,7 +36,7 @@ func _ready() -> void:
 
 	compass.target = poulailler
 	hotbar.player = player
-	_previous_player_health = player.health
+	player.hit_received.connect(show_damage_overlay)
 	blood_overlay.modulate.a = 0.0
 
 	_layout_hud()
@@ -48,9 +47,6 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_empty_joint_damage(delta)
-	if player.health < _previous_player_health:
-		show_damage_overlay()
-	_previous_player_health = player.health
 	update_health_bars()
 
 
@@ -78,7 +74,7 @@ func _update_empty_joint_damage(delta: float) -> void:
 	_empty_joint_timer += delta
 	if _empty_joint_timer >= EMPTY_JOINT_INTERVAL:
 		_empty_joint_timer -= EMPTY_JOINT_INTERVAL
-		player.take_damage(EMPTY_JOINT_DAMAGE)
+		player.take_damage(EMPTY_JOINT_DAMAGE, false)
 
 # Joint en bas à gauche, vie du joueur en bas à droite.
 func _layout_hud() -> void:
