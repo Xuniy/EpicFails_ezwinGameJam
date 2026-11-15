@@ -1,5 +1,8 @@
 extends Node2D
 
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const EXPLOSION_SOUND = preload("res://sounds/nuke_explosion.wav")
+
 @export var explosion_radius: float = 250.0
 @export var fall_height: float = 700.0
 @export var fall_time: float = 0.2
@@ -61,6 +64,7 @@ func explode() -> void:
 		return
 
 	exploded = true
+	SOUND_EFFECT.play_at(EXPLOSION_SOUND, self)
 	bomb.hide()
 	zone.hide()
 	explo.show()

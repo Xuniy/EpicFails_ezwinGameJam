@@ -3,6 +3,10 @@ extends CharacterBody2D
 const ITEM_SCENE = preload("res://scences/item_au_sol.tscn")
 const HIT_PARTICLES = preload("res://sang_particule.tscn")
 const DASH_EFFECT = preload("res://scences/fox_dash_effect.tscn")
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const ATTACK_SOUND = preload("res://sounds/attack_renard.wav")
+const DAMAGE_SOUND = preload("res://sounds/degat_renard.wav")
+const DEATH_SOUND = preload("res://sounds/mort_renard.wav")
 const ITEM_TYPES = ["grenade", "tp", "nuke"]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
@@ -117,6 +121,7 @@ func start_dash() -> void:
 	# La direction reste verrouillée jusqu'à la fin de la charge.
 	dash_remaining = maxf(dash_duration, 0.01)
 	is_attacking = true
+	SOUND_EFFECT.play_at(ATTACK_SOUND, self)
 	velocity = dash_direction * dash_speed
 	update_animation(dash_direction, true)
 	spawn_dash_effect()
@@ -212,6 +217,7 @@ func take_damage(amount: float) -> void:
 		return
 	spawn_hit_particles()
 	health -= amount
+	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self)
 	if health <= 0.0:
 		dead = true
 		drop_item()

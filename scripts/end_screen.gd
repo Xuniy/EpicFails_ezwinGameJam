@@ -6,6 +6,7 @@ extends CanvasLayer
 
 const TITLE_FONT_SIZE: int = 48
 const BUTTON_FONT_SIZE: int = 32
+const GAME_OVER_SOUND = preload("res://sounds/game_over.wav")
 
 var message: String = ""
 
@@ -23,6 +24,11 @@ static func show_end(tree: SceneTree, text: String) -> void:
 func _ready() -> void:
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var sound := AudioStreamPlayer.new()
+	sound.name = "SonGameOver"
+	sound.stream = GAME_OVER_SOUND
+	add_child(sound)
+	sound.play()
 
 	var background := ColorRect.new()
 	background.color = Color(0, 0, 0, 0.8)

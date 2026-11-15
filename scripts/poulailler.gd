@@ -1,5 +1,8 @@
 extends StaticBody2D
 
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const DAMAGE_SOUND = preload("res://sounds/degats_poulailler.wav")
+
 @export var max_health: float = 500.0
 @export_range(0.0, 1.0, 0.05) var occluded_opacity: float = 0.3
 @export_range(0.0, 1.0, 0.05) var fade_duration: float = 0.15
@@ -38,6 +41,8 @@ func take_damage(amount: float) -> void:
 		return
 
 	health = clampf(health - amount, 0.0, max_health)
+	if amount > 0.0:
+		SOUND_EFFECT.play_at(DAMAGE_SOUND, self)
 	print("[Poulailler] Vie : ", health, "/", max_health)
 
 	if health <= 0.0:

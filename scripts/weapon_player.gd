@@ -77,3 +77,4 @@ func shoot() -> void:
 	else :
 		bullet.global_position = muzzle1.global_position
 	bullet.direction = last_aim_direction
+	$"../tir_balle_son".play()

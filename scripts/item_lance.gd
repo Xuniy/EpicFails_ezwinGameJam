@@ -1,5 +1,9 @@
 extends Node2D
 
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const EXPLOSION_SOUND = preload("res://sounds/grenade_explo.wav")
+const THROW_SOUND = preload("res://sounds/throw_bruit.wav")
+
 @export_enum("grenade", "tp") var item_type: String = "grenade"
 @export var flight_time: float = 0.6
 @export var explosion_radius: float = 160.0
@@ -24,6 +28,7 @@ func launch(origin: Vector2, target: Vector2, height: float) -> void:
 	destination = target
 	control = (start + destination) * 0.5 + Vector2.UP * height
 	global_position = start
+	SOUND_EFFECT.play_at(THROW_SOUND, self)
 
 
 func _physics_process(delta: float) -> void:
@@ -64,6 +69,7 @@ func land() -> void:
 		return
 
 	exploded = true
+	SOUND_EFFECT.play_at(EXPLOSION_SOUND, self)
 	$Sprite2D.hide()
 	$explo_grenade.show()
 	$explo_grenade.play("default")
