@@ -18,6 +18,9 @@ const WALK_ANIMATIONS = [
 @export var attack_cooldown: float = 1.0
 var is_attacking: bool = false
 
+# Objet forcé à la mort (tutoriel). Vide = drop aléatoire.
+var forced_drop: String = ""
+
 @onready var attack_zone: Area2D = $attack_zone
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var fourche_pivot: Node2D = get_node_or_null("fourche_pivot")
@@ -187,7 +190,7 @@ func attack(victim: Node2D) -> void:
 
 func drop_item() -> void:
 	var item = ITEM_SCENE.instantiate()
-	item.item_type = ITEM_TYPES.pick_random()
+	item.item_type = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
 
 	var world := get_tree().current_scene as Node2D
 

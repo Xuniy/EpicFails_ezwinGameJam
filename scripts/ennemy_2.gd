@@ -11,6 +11,9 @@ const WALK_ANIMATIONS = [
 
 @export var speed: float = 80.0
 @export var health: float = 15.0
+
+# Objet forcé à la mort (tutoriel). Vide = drop aléatoire.
+var forced_drop: String = ""
 @export var damage: float = 2.0
 @export var attack_distance: float = 140.0
 @export var dash_speed: float = 600.0
@@ -233,6 +236,6 @@ func drop_item() -> void:
 	if world == null:
 		return
 	var item = ITEM_SCENE.instantiate()
-	item.item_type = ITEM_TYPES.pick_random()
+	item.item_type = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
 	item.position = world.to_local(global_position)
 	world.add_child.call_deferred(item)
