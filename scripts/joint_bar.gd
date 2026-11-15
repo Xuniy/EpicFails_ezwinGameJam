@@ -76,7 +76,7 @@ func _update_smoke() -> void:
 	if smoke == null:
 		return
 
-	smoke.visible = amount > 0.0
+	
 	# Centre la fumée sur l'unité braise, et pose sa base sur le haut du joint.
 	var smoke_px: float = display_scale * smoke_scale_factor
 	var ember_center_x: float = (_ember_x() + EMBER_WIDTH * 0.5) * display_scale
@@ -87,9 +87,9 @@ func _update_smoke() -> void:
 
 
 func _draw() -> void:
-	if joint_texture == null or amount <= 0.0:
+	if joint_texture == null:
 		return
-
+	
 	var top: float = _joint_top()
 	var ember_x: float = _ember_x()
 

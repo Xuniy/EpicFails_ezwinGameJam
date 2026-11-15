@@ -33,15 +33,13 @@ func _physics_process(delta: float) -> void:
 		z_index = 1 if animation in [&"walk_up", &"walk_up_left", &"walk_up_right"] else -1
 
 		return
-	var aim := Input.get_vector(
-		"sr_gauche", "sr_droite", "sr_haut", "sr_bas"
-	)
+	var aim: Vector2 = get_parent().get_aim_input()
 
 	if aim.length_squared() > 0.0:
 		last_aim_direction = aim.normalized()
 
 	cooldown = maxf(cooldown - delta, 0.0)
-	var is_shooting := Input.is_action_pressed("tir")
+	var is_shooting: bool = get_parent().is_firing()
 	var player_animation: StringName = get_parent().animated_sprite.animation
 
 	if not aim.is_zero_approx() or is_shooting:

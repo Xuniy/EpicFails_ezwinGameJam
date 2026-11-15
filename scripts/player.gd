@@ -40,6 +40,14 @@ var items := {
 }
 var item_order := ["grenade", "tp", "nuke"]
 var selected_index: int = 0
+var mouse_aim_active: bool = false
+var _last_mouse_position := Vector2.ZERO
+var _right_was_down: bool = false
+var _left_was_down: bool = false
+var _left_consumed: bool = false
+# Dézoom du lancer : reste actif jusqu'au relâchement du clic droit, même après validation.
+var _throw_zoom_active: bool = false
+var _last_throw_target := Vector2.ZERO
 
 var selected_item: String:
 	get:
@@ -53,8 +61,20 @@ func _ready() -> void:
 	$detection_ennemy.body_entered.connect(_on_enemy_entered)
 	$detection_ennemy.body_exited.connect(_on_enemy_exited)
 	fume.play("fume")
+	_last_mouse_position = get_viewport().get_mouse_position()
 	update_smoke_position()
 	
+# Molette lue avant l'interface : un Control ne peut pas la bloquer.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var click := event as InputEventMouseButton
+		if click.pressed and not aiming_item:
+			if click.button_index == MOUSE_BUTTON_WHEEL_UP:
+				cycle_item(-1)
+			elif click.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				cycle_item(1)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo():
 		return
@@ -93,6 +113,75 @@ func _unhandled_input(event: InputEvent) -> void:
 			selected_index = posmod(
 				selected_index - 1, item_order.size()
 			)
+func is_mouse_aiming() -> bool:
+	return mouse_aim_active
+
+
+# Visée : le stick est prioritaire ; sinon, l'arme regarde le curseur souris.
+func get_aim_input() -> Vector2:
+	var stick := Input.get_vector("sr_gauche", "sr_droite", "sr_haut", "sr_bas")
+	if not stick.is_zero_approx() or not mouse_aim_active:
+		return stick
+	var offset := get_global_mouse_position() - global_position
+	if offset.length() < 4.0:
+		return Vector2.ZERO
+	return offset.normalized()
+
+
+# Tir : gâchette droite (manette) ou clic gauche (souris).
+func is_firing() -> bool:
+	var mouse_fire := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not _left_consumed and mouse_throw_item == ""
+	return Input.is_action_pressed("tir") or mouse_fire
+
+
+func cycle_item(step: int) -> void:
+	selected_index = posmod(selected_index + step, item_order.size())
+
+
+# Clic droit maintenu : lance-pierre. La souris tirée d'un côté envoie l'item du côté opposé ;
+# plus la traction est longue, plus il va loin. Clic gauche pour valider, relâcher le droit annule.
+var mouse_throw_item: String = ""
+var mouse_throw_anchor := Vector2.ZERO
+@export var sling_power: float = 1.0
+
+
+func is_item_aiming() -> bool:
+	return Input.is_action_pressed("use_item") or mouse_throw_item != ""
+
+
+func start_mouse_throw() -> void:
+	if items[selected_item] <= 0:
+		print("Aucun exemplaire de : ", selected_item)
+		return
+	mouse_throw_item = selected_item
+	mouse_throw_anchor = get_global_mouse_position()
+	_throw_zoom_active = true
+
+
+# Point visé par le lance-pierre, selon la position actuelle de la souris.
+func get_sling_target() -> Vector2:
+	var origin := item_aim.global_position
+	var pull := get_global_mouse_position() - mouse_throw_anchor
+	if pull.length() < 1.0:
+		return origin
+	var distance := minf(pull.length() * sling_power, item_aim.max_distance)
+	return origin - pull.normalized() * distance
+
+
+func cancel_mouse_throw() -> void:
+	mouse_throw_item = ""
+	_throw_zoom_active = false
+
+
+func release_mouse_throw() -> void:
+	if mouse_throw_item == "":
+		return
+	var item := mouse_throw_item
+	var target := get_sling_target()
+	mouse_throw_item = ""
+	use_item_at(item, target)
+
+
 func _on_enemy_entered(body: Node2D) -> void:
 	if body.is_in_group("enemies"):
 		body.focus_player(self)
@@ -106,9 +195,13 @@ func _on_enemy_exited(body: Node2D) -> void:
 func _process(_delta: float) -> void:
 	var target: Vector2 = (item_aim.global_position+ item_aim.aim_direction * item_aim.distance)
 
+	if mouse_throw_item != "":
+		_last_throw_target = get_sling_target()
+	if _throw_zoom_active:
+		target = _last_throw_target
 	update_camera_zoom(
 		target,
-		Input.is_action_pressed("use_item")
+		is_item_aiming() or _throw_zoom_active
 	)
 	
 
@@ -155,7 +248,35 @@ func update_camera_zoom(target: Vector2, aiming: bool) -> void:
 
 
 
+# Souris lue à chaque frame : visée au curseur et clic droit (arc).
+func _update_mouse_input() -> void:
+	var mouse := get_viewport().get_mouse_position()
+	var stick := Input.get_vector("sr_gauche", "sr_droite", "sr_haut", "sr_bas")
+	var clicking := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	if stick.length() > 0.2:
+		mouse_aim_active = false
+	elif mouse.distance_squared_to(_last_mouse_position) > 0.25 or clicking:
+		mouse_aim_active = true
+	_last_mouse_position = mouse
+	var right_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	if right_down != _right_was_down:
+		_right_was_down = right_down
+		if right_down:
+			start_mouse_throw()
+		else:
+			cancel_mouse_throw()
+	# Clic gauche pendant la visée : valide le lancer, sans tirer à l'arme.
+	var left_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	if not left_down:
+		_left_consumed = false
+	elif not _left_was_down and mouse_throw_item != "":
+		release_mouse_throw()
+		_left_consumed = true
+	_left_was_down = left_down
+
+
 func _physics_process(_delta: float) -> void:
+	_update_mouse_input()
 	var direction := Input.get_vector(
 		"gauche", "droite", "haut", "bas"
 	)
@@ -165,12 +286,10 @@ func _physics_process(_delta: float) -> void:
 
 
 func update_animation(direction: Vector2) -> void:
-	var aim := Input.get_vector(
-		"sr_gauche", "sr_droite", "sr_haut", "sr_bas"
-	)
+	var aim := get_aim_input()
 	if not aim.is_zero_approx():
 		facing_direction = aim
-	elif Input.is_action_pressed("tir"):
+	elif is_firing():
 		# Sans entrée de visée, l'arme conserve sa dernière direction.
 		facing_direction = $Weapon.last_aim_direction
 	elif not direction.is_zero_approx():
@@ -195,6 +314,7 @@ func take_damage(amount: float) -> void:
 
 	if health <= 0.0:
 		print("[Player] Mort !")
+		EndScreen.show_end(get_tree(), "Chicken Norris est mort")
 		
 		
 func collect_item(item_type: String) -> bool:

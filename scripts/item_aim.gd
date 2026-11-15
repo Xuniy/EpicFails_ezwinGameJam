@@ -13,10 +13,26 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	visible = Input.is_action_pressed("use_item")
+	visible = get_parent().is_item_aiming()
 
 	if not visible:
 		distance = 0.0
+		return
+
+	if get_parent().mouse_throw_item != "":
+		var sling_offset: Vector2 = get_parent().get_sling_target() - global_position
+		if sling_offset.length() > 0.001:
+			aim_direction = sling_offset.normalized()
+		distance = minf(sling_offset.length(), max_distance)
+		queue_redraw()
+		return
+
+	if get_parent().is_mouse_aiming():
+		var offset: Vector2 = get_global_mouse_position() - global_position
+		if offset.length() > 0.001:
+			aim_direction = offset.normalized()
+		distance = minf(offset.length(), max_distance)
+		queue_redraw()
 		return
 
 	var aim := Input.get_vector(
@@ -58,6 +74,8 @@ func _draw() -> void:
 			Color.WHITE,
 			1.0
 		)
+	if get_parent().mouse_throw_item != "":
+		draw_line(to_local(get_parent().mouse_throw_anchor), to_local(get_global_mouse_position()), Color(1, 1, 1, 0.8), 2.0)
 
 
 func curve_point(

@@ -42,3 +42,4 @@ func take_damage(amount: float) -> void:
 
 	if health <= 0.0:
 		print("[Poulailler] Détruit !")
+		EndScreen.show_end(get_tree(), "Le Poulailler a été détruit par les envahisseurs")
