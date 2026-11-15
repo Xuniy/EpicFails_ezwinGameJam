@@ -109,7 +109,7 @@ func _run() -> void:
 	await _say("Ton but : le protéger. Si ta vie ou celle du poulailler tombe à zéro, c'est perdu.")
 	await _say("Commence par t'entraîner. Une cible apparaît devant toi.")
 
-	var target := _spawn_enemy(player.global_position + Vector2(300, 0), "tp")
+	var target: int = _spawn_enemy(player.global_position + Vector2(300, 0), "tp")
 	await _objective("Tire sur l'ennemi devant toi (clic gauche).", "Tire sur l'ennemi devant toi (RT).",
 		ICON_MOUSE, ICON_RT, func(): return _dead(target))
 
@@ -123,7 +123,7 @@ func _run() -> void:
 		func(): return _count("tp") < pearl_count)
 
 	await _say("Un second ennemi approche, il a laissé une grenade.")
-	var second := _spawn_enemy(player.global_position + Vector2(-260, -160), "grenade")
+	var second: int = _spawn_enemy(player.global_position + Vector2(-260, -160), "grenade")
 	await _objective("Tue le second ennemi (clic gauche).", "Tue le second ennemi (RT).",
 		ICON_MOUSE, ICON_RT, func(): return _dead(second))
 
@@ -212,7 +212,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _spawn_enemy(pos: Vector2, drop: String) -> Node2D:
+func _spawn_enemy(pos: Vector2, drop: String) -> int:
 	var enemy = ENEMY_SCENE.instantiate()
 	enemy.default_target = player
 	enemy.speed = 0.0
@@ -220,11 +220,14 @@ func _spawn_enemy(pos: Vector2, drop: String) -> Node2D:
 	enemy.forced_drop = drop
 	enemies_root.add_child(enemy)
 	enemy.global_position = pos
-	return enemy
+	return enemy.get_instance_id()
 
 
-func _dead(enemy: Node) -> bool:
-	return not is_instance_valid(enemy) or enemy.is_queued_for_deletion()
+# Reçoit un identifiant d'instance : pas de capture d'objet libéré dans les lambdas.
+func _dead(id: int) -> bool:
+	if not is_instance_id_valid(id):
+		return true
+	return (instance_from_id(id) as Node).is_queued_for_deletion()
 
 
 func _all_dead(enemies: Array) -> bool:
