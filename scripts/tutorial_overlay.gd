@@ -34,6 +34,7 @@ var queue: Array = []
 var current: Dictionary = {}
 var bubble_timer: float = 0.0
 
+var mission_panel: PanelContainer
 var mission_label: Label
 var mission_icon: TextureRect
 var speaker_label: Label
@@ -72,6 +73,7 @@ func _build_ui() -> void:
 	mission.offset_right = 450.0
 	mission.offset_top = 16.0
 	add_child(mission)
+	mission_panel = mission
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -175,8 +177,6 @@ func _build_script() -> Array:
 			"say": "Ton joint est presque vide : vide, il te fait perdre de la vie. Chaque bonne touche ajoute 5 secondes."},
 		{"type": "say", "blocking": true, "text": "Parfait. Tu es prêt. Protège le poulailler !"},
 		{"type": "do", "run": Callable(self, "_finish")},
-		{"type": "objective", "kind": "always",
-			"pc": "Protège le poulailler.", "xbox": "Protège le poulailler."},
 	]
 
 
@@ -303,7 +303,7 @@ func _wave_target() -> void:
 
 
 func _wave_second() -> void:
-	groups["second"] = [_spawn_enemy(_place(Vector2(260, -160)), "grenade")]
+	groups["second"] = [_spawn_enemy(_place(Vector2(160, -100)), "grenade")]
 
 
 func _wave_small() -> void:
@@ -332,6 +332,7 @@ func _joint_setup() -> void:
 
 func _finish() -> void:
 	_set_spawner(true)
+	mission_panel.visible = false
 
 
 func _spawn_enemy(pos: Vector2, drop: String) -> int:

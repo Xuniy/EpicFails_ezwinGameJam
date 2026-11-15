@@ -19,6 +19,7 @@ var bob_time: float = 0.0
 
 
 func _ready() -> void:
+	add_to_group("ground_items")
 	sprite.texture = ICONS.get(item_type)
 	body_entered.connect(_on_body_entered)
 
