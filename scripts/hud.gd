@@ -3,8 +3,8 @@ extends Control
 @onready var player = $"../../Player"
 @onready var poulailler = $"../../poulailler"
 
-@onready var player_bar: ProgressBar = $VBoxContainer/vieplayer
-@onready var coop_bar: ProgressBar = $VBoxContainer/viepoulailler
+@onready var player_bar: HealthBar = $VBoxContainer/vieplayer
+@onready var coop_bar: HealthBar = $VBoxContainer/viepoulailler
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
 

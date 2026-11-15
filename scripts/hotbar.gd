@@ -1,19 +1,18 @@
 extends Control
 
 ## Barre d'items façon Minecraft : l'item sélectionné est au centre, agrandi,
-## ses voisins sont sur les côtés. Chaque case affiche le nombre d'exemplaires,
-## et le nom de l'item sélectionné s'affiche au-dessus.
+## ses voisins sont sur les côtés. Chaque case utilise Inventory_Slot_1 comme fond
+## et affiche le nombre d'exemplaires. Le nom de l'item sélectionné s'affiche au-dessus.
 @export var player: Node2D
 
+const SLOT_TEXTURE: Texture2D = preload("res://assets/Inventory_Slot_1.png")
 const SLOT_SIZE: float = 52.0
 const SELECTED_SCALE: float = 1.6
 const SLOT_GAP: float = 10.0
 const BOTTOM_MARGIN: float = 12.0
-const BORDER_WIDTH: float = 2.0
+const ICON_INSET: float = 0.16
 const NAME_FONT_SIZE: int = 18
-const SLOT_COLOR := Color(0.0, 0.0, 0.0, 0.55)
-const BORDER_COLOR := Color(0.8, 0.8, 0.8, 0.9)
-const SELECTED_BORDER_COLOR := Color(1.0, 0.85, 0.2)
+const UNSELECTED_ALPHA: float = 0.7
 const EMPTY_ALPHA: float = 0.35
 
 const ICONS := {
@@ -31,6 +30,7 @@ const DISPLAY_NAMES := {
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _process(_delta: float) -> void:
@@ -70,19 +70,18 @@ func _draw() -> void:
 
 		var quantity: int = player.items.get(item_type, 0)
 
-		draw_rect(rect, SLOT_COLOR)
+		var slot_alpha: float = 1.0 if is_selected else UNSELECTED_ALPHA
+		draw_texture_rect(SLOT_TEXTURE, rect, false, Color(1, 1, 1, slot_alpha))
 
 		var icon: Texture2D = ICONS.get(item_type)
 		if icon:
-			var alpha: float = 1.0 if quantity > 0 else EMPTY_ALPHA
-			draw_texture_rect(icon, rect.grow(-slot * 0.12), false, Color(1, 1, 1, alpha))
-
-		draw_rect(
-			rect,
-			SELECTED_BORDER_COLOR if is_selected else BORDER_COLOR,
-			false,
-			BORDER_WIDTH
-		)
+			var icon_alpha: float = 1.0 if quantity > 0 else EMPTY_ALPHA
+			draw_texture_rect(
+				icon,
+				rect.grow(-slot * ICON_INSET),
+				false,
+				Color(1, 1, 1, icon_alpha * slot_alpha)
+			)
 
 		var font_size: int = 20 if is_selected else 14
 		draw_string(
