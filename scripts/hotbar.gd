@@ -51,7 +51,7 @@ func _draw() -> void:
 	var base_y: float = size.y - BOTTOM_MARGIN
 	var center_x: float = size.x * 0.5
 	var big_size: float = SLOT_SIZE * SELECTED_SCALE
-	var font: Font = ThemeDB.fallback_font
+	var font: Font = get_theme_default_font()
 
 	# Ordre d'affichage : voisin de gauche, sélection (centre), voisin de droite.
 	for offset in [-1, 0, 1]:
