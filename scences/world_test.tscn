@@ -10,10 +10,11 @@
 [ext_resource type="Script" path="res://scripts/hotbar.gd" id="5_hotbar"]
 
 [ext_resource type="Script" path="res://scripts/health_bar.gd" id="7_healthbar"]
-[ext_resource type="Texture2D" path="res://assets/Health_01_red.png" id="8_frame_player"]
+[ext_resource type="Texture2D" path="res://assets/Health_01.png" id="8_frame_player"]
+[ext_resource type="Texture2D" path="res://assets/Health_01_red.png" id="12_heart_red"]
 [ext_resource type="Texture2D" path="res://assets/Health_01_Bar01.png" id="9_fill_player"]
 [ext_resource type="Texture2D" path="res://assets/Health_03.png" id="10_frame_coop"]
-[ext_resource type="Texture2D" path="res://assets/Health_01_Bar02.png" id="11_fill_coop"]
+[ext_resource type="Texture2D" path="res://assets/Health_04_Bar02.png" id="11_fill_coop"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w5pmr"]
 size = Vector2(34, 20)
@@ -68,6 +69,8 @@ layout_mode = 2
 script = ExtResource("7_healthbar")
 frame = ExtResource("8_frame_player")
 fill = ExtResource("9_fill_player")
+heart_fill = ExtResource("12_heart_red")
+heart_region = Rect2(0, 0, 14, 16)
 
 [node name="Label2" type="Label" parent="UI_en_sah/HUD/VBoxContainer" unique_id=1301598364]
 layout_mode = 2
@@ -79,7 +82,7 @@ script = ExtResource("7_healthbar")
 frame = ExtResource("10_frame_coop")
 fill = ExtResource("11_fill_coop")
 track_region = Rect2(11, 7, 42, 2)
-fill_region = Rect2(16, 5, 42, 2)
+fill_region = Rect2(0, 1, 42, 2)
 
 [node name="Hotbar" type="Control" parent="UI_en_sah/HUD" unique_id=748203516]
 layout_mode = 1
