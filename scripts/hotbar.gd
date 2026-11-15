@@ -1,7 +1,8 @@
 extends Control
 
 ## Barre d'items façon Minecraft : l'item sélectionné est au centre, agrandi,
-## ses voisins sont sur les côtés. Chaque case affiche le nombre d'exemplaires.
+## ses voisins sont sur les côtés. Chaque case affiche le nombre d'exemplaires,
+## et le nom de l'item sélectionné s'affiche au-dessus.
 @export var player: Node2D
 
 const SLOT_SIZE: float = 52.0
@@ -9,6 +10,7 @@ const SELECTED_SCALE: float = 1.6
 const SLOT_GAP: float = 10.0
 const BOTTOM_MARGIN: float = 12.0
 const BORDER_WIDTH: float = 2.0
+const NAME_FONT_SIZE: int = 18
 const SLOT_COLOR := Color(0.0, 0.0, 0.0, 0.55)
 const BORDER_COLOR := Color(0.8, 0.8, 0.8, 0.9)
 const SELECTED_BORDER_COLOR := Color(1.0, 0.85, 0.2)
@@ -18,6 +20,12 @@ const ICONS := {
 	"grenade": preload("res://assets/eggrenade.png"),
 	"tp": preload("res://assets/eggderpearl.png"),
 	"nuke": preload("res://assets/egg_bomba.png"),
+}
+
+const DISPLAY_NAMES := {
+	"grenade": "eggrenade",
+	"tp": "eggder pearl",
+	"nuke": "egg bomba",
 }
 
 
@@ -86,3 +94,16 @@ func _draw() -> void:
 			font_size,
 			Color.WHITE
 		)
+
+	# Nom de l'item sélectionné, centré au-dessus de la case du milieu.
+	var selected_type: String = order[selected]
+	var selected_name: String = DISPLAY_NAMES.get(selected_type, selected_type)
+	draw_string(
+		font,
+		Vector2(center_x - 100.0, base_y - big_size - 8.0),
+		selected_name,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		200.0,
+		NAME_FONT_SIZE,
+		Color.WHITE
+	)
