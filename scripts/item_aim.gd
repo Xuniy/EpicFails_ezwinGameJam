@@ -19,6 +19,14 @@ func _process(delta: float) -> void:
 		distance = 0.0
 		return
 
+	if get_parent().is_mouse_aiming():
+		var offset: Vector2 = get_global_mouse_position() - global_position
+		if offset.length() > 0.001:
+			aim_direction = offset.normalized()
+		distance = minf(offset.length(), max_distance)
+		queue_redraw()
+		return
+
 	var aim := Input.get_vector(
 		"sr_gauche", "sr_droite", "sr_haut", "sr_bas"
 	)

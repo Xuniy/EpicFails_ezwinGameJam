@@ -40,6 +40,7 @@ var items := {
 }
 var item_order := ["grenade", "tp", "nuke"]
 var selected_index: int = 0
+var mouse_aim_active: bool = false
 
 var selected_item: String:
 	get:
@@ -57,6 +58,23 @@ func _ready() -> void:
 	
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo():
+		return
+
+	# Souris : déplacement = visée, molette = changer d'item, clic droit = lancer.
+	if event is InputEventMouseMotion:
+		mouse_aim_active = true
+	elif event is InputEventJoypadMotion:
+		var joy := event as InputEventJoypadMotion
+		if joy.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y] and absf(joy.axis_value) > 0.2:
+			mouse_aim_active = false
+	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+		var button := (event as InputEventMouseButton).button_index
+		if button == MOUSE_BUTTON_WHEEL_UP and not aiming_item:
+			cycle_item(-1)
+		elif button == MOUSE_BUTTON_WHEEL_DOWN and not aiming_item:
+			cycle_item(1)
+		elif button == MOUSE_BUTTON_RIGHT:
+			throw_at_mouse()
 		return
 
 	# Maintenir pour viser.
@@ -93,6 +111,40 @@ func _unhandled_input(event: InputEvent) -> void:
 			selected_index = posmod(
 				selected_index - 1, item_order.size()
 			)
+func is_mouse_aiming() -> bool:
+	return mouse_aim_active
+
+
+# Visée : le stick est prioritaire ; sinon, l'arme regarde le curseur souris.
+func get_aim_input() -> Vector2:
+	var stick := Input.get_vector("sr_gauche", "sr_droite", "sr_haut", "sr_bas")
+	if not stick.is_zero_approx() or not mouse_aim_active:
+		return stick
+	var offset := get_global_mouse_position() - global_position
+	if offset.length() < 4.0:
+		return Vector2.ZERO
+	return offset.normalized()
+
+
+# Tir : gâchette droite (manette) ou clic gauche (souris).
+func is_firing() -> bool:
+	return Input.is_action_pressed("tir") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+
+
+func cycle_item(step: int) -> void:
+	selected_index = posmod(selected_index + step, item_order.size())
+
+
+# Lancer vers le curseur, limité à la portée de l'item.
+func throw_at_mouse() -> void:
+	if items[selected_item] <= 0:
+		print("Aucun exemplaire de : ", selected_item)
+		return
+	var origin := item_aim.global_position
+	var offset := get_global_mouse_position() - origin
+	use_item_at(selected_item, origin + offset.limit_length(item_aim.max_distance))
+
+
 func _on_enemy_entered(body: Node2D) -> void:
 	if body.is_in_group("enemies"):
 		body.focus_player(self)
@@ -165,12 +217,10 @@ func _physics_process(_delta: float) -> void:
 
 
 func update_animation(direction: Vector2) -> void:
-	var aim := Input.get_vector(
-		"sr_gauche", "sr_droite", "sr_haut", "sr_bas"
-	)
+	var aim := get_aim_input()
 	if not aim.is_zero_approx():
 		facing_direction = aim
-	elif Input.is_action_pressed("tir"):
+	elif is_firing():
 		# Sans entrée de visée, l'arme conserve sa dernière direction.
 		facing_direction = $Weapon.last_aim_direction
 	elif not direction.is_zero_approx():
