@@ -2,7 +2,100 @@
 
 [ext_resource type="Texture2D" uid="uid://dssmewck67gy0" path="res://assets/nuke_largage.png" id="1_gviix"]
 [ext_resource type="Script" uid="uid://d1cst8s5na2v5" path="res://scripts/nuke.gd" id="1_hxvcg"]
+[ext_resource type="Texture2D" uid="uid://c5prmapcq60ny" path="res://assets/explosion_nuke.png" id="2_35uht"]
 [ext_resource type="Texture2D" uid="uid://bsdvymtcup18r" path="res://assets/egg_bomba.png" id="2_i7b0b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v26eu"]
+atlas = ExtResource("2_35uht")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x1i7x"]
+atlas = ExtResource("2_35uht")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ijxk8"]
+atlas = ExtResource("2_35uht")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_08iy5"]
+atlas = ExtResource("2_35uht")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jm7x2"]
+atlas = ExtResource("2_35uht")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bmuxo"]
+atlas = ExtResource("2_35uht")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3j2gc"]
+atlas = ExtResource("2_35uht")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u0xe5"]
+atlas = ExtResource("2_35uht")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4w7fy"]
+atlas = ExtResource("2_35uht")
+region = Rect2(1024, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jm28h"]
+atlas = ExtResource("2_35uht")
+region = Rect2(1152, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jo87m"]
+atlas = ExtResource("2_35uht")
+region = Rect2(1280, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7vcp0"]
+atlas = ExtResource("2_35uht")
+region = Rect2(1408, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0pf81"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v26eu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x1i7x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ijxk8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_08iy5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jm7x2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bmuxo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3j2gc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u0xe5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4w7fy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jm28h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jo87m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7vcp0")
+}],
+"loop": 0,
+"name": &"explosion",
+"speed": 10.0
+}]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8jlij"]
 atlas = ExtResource("1_gviix")
@@ -53,6 +146,15 @@ radius = 316.12814
 [node name="nuke" type="Node2D" unique_id=1611035271]
 script = ExtResource("1_hxvcg")
 
+[node name="explosion" type="AnimatedSprite2D" parent="." unique_id=992458763]
+texture_filter = 1
+position = Vector2(0, -598.99994)
+scale = Vector2(10, 10)
+sprite_frames = SubResource("SpriteFrames_0pf81")
+animation = &"explosion"
+frame = 11
+frame_progress = 1.0
+
 [node name="egg_bomba" type="Sprite2D" parent="." unique_id=260393424]
 texture_filter = 1
 rotation = 1.5707964
@@ -75,3 +177,16 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="explosion_zone" unique_id=674404291]
 shape = SubResource("CircleShape2D_w5pmr")
+
+[node name="Flash" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="White" type="ColorRect" parent="Flash"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

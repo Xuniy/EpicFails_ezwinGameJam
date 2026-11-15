@@ -58,31 +58,35 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD+/wMAAAABAAIAAAD//wMAAAABAAIAAAACAAMAAAABAAIAAAACAAEAAAACAAIAAAADAAMAAAABAAIAAAADAAEAAAACAAIAAAAEAAMAAAABAAIAAAAEAAEAAAACAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAA=")
 tile_set = ExtResource("4_2yv8w")
 
-[node name="MurFond" type="TileMapLayer" parent="Ferme" unique_id=2117141410]
+[node name="Batiment" type="Node2D" parent="Ferme"]
+editor_description = "Les murs, pignons et toits deviennent transparents lorsqu'un personnage passe dans ZoneTransparence."
+y_sort_enabled = true
+
+[node name="MurFond" type="TileMapLayer" parent="Ferme/Batiment" unique_id=2117141410]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD+////AAACAAAAAAD/////AAACABUAAAAAAP//AAACAAAAAAABAP//AAACAAAAAAA=")
 tile_set = ExtResource("2_fs5kt")
 
-[node name="MurGauche" type="TileMapLayer" parent="Ferme" unique_id=585466939]
+[node name="MurGauche" type="TileMapLayer" parent="Ferme/Batiment" unique_id=585466939]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD+////AAAAAAAAAAD+/wAAAAAAAAAAAAA=")
 tile_set = ExtResource("2_fs5kt")
 
-[node name="MurFacade" type="TileMapLayer" parent="Ferme" unique_id=1565952539]
+[node name="MurFacade" type="TileMapLayer" parent="Ferme/Batiment" unique_id=1565952539]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD+/wAAAAABABQAAAD//wAAAAABABQAAAAAAAAAAAABAAQAAAABAAAAAAABAAAAAAA=")
 tile_set = ExtResource("2_fs5kt")
 
-[node name="MurDroit" type="TileMapLayer" parent="Ferme" unique_id=1666138244]
+[node name="MurDroit" type="TileMapLayer" parent="Ferme/Batiment" unique_id=1666138244]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAABAP//AAADABQAAAABAAAAAAADAAAAAAA=")
 tile_set = ExtResource("2_fs5kt")
 
-[node name="PignonsGauche" type="TileMapLayer" parent="Ferme" unique_id=870332839]
+[node name="PignonsGauche" type="TileMapLayer" parent="Ferme/Batiment" unique_id=870332839]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 position = Vector2(0, -164)
@@ -90,7 +94,7 @@ tile_map_data = PackedByteArray("AAD+////AAAAABIAAAD+/wAAAAAAABEAAAA=")
 tile_set = ExtResource("2_fs5kt")
 y_sort_origin = 164
 
-[node name="PignonsDroit" type="TileMapLayer" parent="Ferme" unique_id=464317561]
+[node name="PignonsDroit" type="TileMapLayer" parent="Ferme/Batiment" unique_id=464317561]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 position = Vector2(0, -164)
@@ -98,7 +102,7 @@ tile_map_data = PackedByteArray("AAABAP//AAADABEAAAABAAAAAAADABIAAAA=")
 tile_set = ExtResource("2_fs5kt")
 y_sort_origin = 164
 
-[node name="ToitArriere" type="TileMapLayer" parent="Ferme" unique_id=2043935232]
+[node name="ToitArriere" type="TileMapLayer" parent="Ferme/Batiment" unique_id=2043935232]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 position = Vector2(0, -164)
@@ -106,7 +110,7 @@ tile_map_data = PackedByteArray("AAD+////AAADAAIAAAD/////AAADAAIAAAAAAP//AAADAAI
 tile_set = ExtResource("7_68g2c")
 y_sort_origin = 164
 
-[node name="ToitAvant" type="TileMapLayer" parent="Ferme" unique_id=589929676]
+[node name="ToitAvant" type="TileMapLayer" parent="Ferme/Batiment" unique_id=589929676]
 editor_description = "Calque editable du poulailler. Palette : E / N / S / W."
 y_sort_enabled = true
 position = Vector2(0, -164)
@@ -123,3 +127,12 @@ tile_set = ExtResource("8_w5dx3")
 [node name="CollisionBatiment" type="CollisionPolygon2D" parent="." unique_id=1614725969]
 position = Vector2(9, -9.399994)
 polygon = PackedVector2Array(-99, -126.399994, 260, 45, 103, 131.6, 370, 275, 80, 402, -533, 80.600006)
+
+[node name="ZoneTransparence" type="Area2D" parent="."]
+editor_description = "Zone couverte par le toit et les murs a l'arriere du poulailler. Detecte le joueur (couche 1) et les ennemis (couche 2)."
+collision_layer = 0
+collision_mask = 3
+monitorable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ZoneTransparence"]
+polygon = PackedVector2Array(-180, -320, 285, -88, 285, 48, -90, -134, -285, -36, -285, -164)

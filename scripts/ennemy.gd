@@ -1,6 +1,8 @@
 extends CharacterBody2D
 
 const ITEM_SCENE = preload("res://scences/item_au_sol.tscn")
+const HIT_PARTICLES = preload("res://sang_particule.tscn")
+const FORK_SLASH = preload("res://scripts/fork_slash_effect.gd")
 const ITEM_TYPES = ["grenade", "tp", "nuke"]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
@@ -11,7 +13,7 @@ const WALK_ANIMATIONS = [
 @export var health: float = 15.0
 @export var damage: float = 2.0
 @export var stop_distance: float = 24.0
-@export var attack_distance: float = 30
+@export var attack_distance: float = 120
 @export var attack_windup: float = 0.1
 @export var attack_cooldown: float = 1.0
 var is_attacking: bool = false
@@ -113,12 +115,26 @@ func return_to_coop() -> void:
 
 
 func take_damage(amount: float) -> void:
+	if amount <= 0.0 or health <= 0.0 or is_queued_for_deletion():
+		return
+	spawn_hit_particles()
 	health -= amount
 
 	if health <= 0.0:
 		drop_item()
 		queue_free()
-		
+
+
+func spawn_hit_particles() -> void:
+	var world := get_tree().current_scene as Node2D
+	if world == null:
+		return
+	var effect := HIT_PARTICLES.instantiate() as GPUParticles2D
+	effect.position = world.to_local(global_position)
+	world.add_child(effect)
+	effect.restart()
+
+
 func attack(victim: Node2D) -> void:
 	is_attacking = true
 	velocity = Vector2.ZERO
@@ -133,6 +149,12 @@ func attack(victim: Node2D) -> void:
 		# Le fermier anime sa fourche pendant la préparation du coup.
 		fourche_pivot.global_rotation = attack_zone.global_rotation
 		var base_angle := fourche_pivot.rotation
+		var slash = FORK_SLASH.new()
+		slash.name = "ForkSlash"
+		slash.transform = fourche_pivot.transform
+		slash.z_index = fourche_pivot.z_index
+		slash.swing_duration = maxf(attack_windup, 0.01)
+		add_child(slash)
 		fourche_pivot.rotation = base_angle - deg_to_rad(35.0)
 		if fourche_stoique != null:
 			fourche_stoique.hide()

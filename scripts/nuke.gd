@@ -6,6 +6,8 @@ extends Node2D
 
 @onready var zone: AnimatedSprite2D = $zone_largage
 @onready var bomb: Sprite2D = $egg_bomba
+@onready var explo: AnimatedSprite2D = $explosion
+@onready var flash: ColorRect = $Flash/White
 
 var falling: bool = false
 var elapsed: float = 0.0
@@ -13,6 +15,9 @@ var exploded: bool = false
 
 
 func _ready() -> void:
+	flash.hide()
+	explo.frame_changed.connect(_update_flash)
+	explo.hide()
 	bomb.hide()
 	bomb.position = Vector2(0.0, -fall_height)
 	bomb.z_index = 10
@@ -52,9 +57,16 @@ func _physics_process(delta: float) -> void:
 
 
 func explode() -> void:
+	if exploded:
+		return
+
 	exploded = true
 	bomb.hide()
 	zone.hide()
+	explo.show()
+	explo.play("explosion")
+	explo.set_frame_and_progress(0, 0.0)
+	_update_flash()
 
 	for enemy in $explosion_zone.get_overlapping_bodies():
 		if not enemy.is_in_group("enemies"):
@@ -65,14 +77,10 @@ func explode() -> void:
 
 		enemy.take_damage(enemy.health)
 
-	queue_redraw()
-	get_tree().create_timer(0.4).timeout.connect(queue_free)
+	await explo.animation_finished
+	queue_free()
 
 
-func _draw() -> void:
-	if exploded:
-		draw_circle(
-			Vector2.ZERO,
-			explosion_radius,
-			Color(1.0, 0.6, 0.1, 0.5)
-		)
+func _update_flash() -> void:
+	flash.visible = exploded and explo.frame < 2
+	flash.color.a = 1.0 if explo.frame == 0 else 0.5

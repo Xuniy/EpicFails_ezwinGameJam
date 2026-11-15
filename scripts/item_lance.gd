@@ -15,6 +15,10 @@ var finished: bool = false
 var exploded: bool = false
 
 
+func _ready() -> void:
+	$explo_grenade.hide()
+
+
 func launch(origin: Vector2, target: Vector2, height: float) -> void:
 	start = origin
 	destination = target
@@ -47,6 +51,9 @@ func _physics_process(delta: float) -> void:
 
 
 func land() -> void:
+	if finished:
+		return
+
 	finished = true
 
 	if item_type == "tp":
@@ -58,6 +65,8 @@ func land() -> void:
 
 	exploded = true
 	$Sprite2D.hide()
+	$explo_grenade.show()
+	$explo_grenade.play("default")
 
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if enemy.is_queued_for_deletion():
@@ -66,14 +75,5 @@ func land() -> void:
 		if global_position.distance_to(enemy.global_position) <= explosion_radius:
 			enemy.take_damage(damage)
 
-	queue_redraw()
-	get_tree().create_timer(0.2).timeout.connect(queue_free)
-
-
-func _draw() -> void:
-	if exploded:
-		draw_circle(
-			Vector2.ZERO,
-			explosion_radius,
-			Color(1.0, 0.5, 0.1, 0.35)
-		)
+	await $explo_grenade.animation_finished
+	queue_free()

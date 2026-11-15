@@ -1,8 +1,79 @@
 [gd_scene format=3 uid="uid://d3td0vw4l5l8g"]
 
 [ext_resource type="Script" uid="uid://8i3wm8v2svcs" path="res://scripts/item_lance.gd" id="1_nbhor"]
+[ext_resource type="Texture2D" uid="uid://bgw6kr63g36ag" path="res://assets/explosion_grenade.png" id="2_bma0a"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkjhn"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xpnxn"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uywuf"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t71xg"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e44k2"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(192, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvdob"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(240, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nr1n0"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(288, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tx2cf"]
+atlas = ExtResource("2_bma0a")
+region = Rect2(336, 0, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_w5pmr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wkjhn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xpnxn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uywuf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t71xg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e44k2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hvdob")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nr1n0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tx2cf")
+}],
+"loop": 0,
+"name": &"default",
+"speed": 10.0
+}]
 
 [node name="item_lance" type="Node2D" unique_id=714167427]
 script = ExtResource("1_nbhor")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=292196717]
+
+[node name="explo_grenade" type="AnimatedSprite2D" parent="." unique_id=1347249619]
+visible = false
+texture_filter = 1
+scale = Vector2(5, 5)
+sprite_frames = SubResource("SpriteFrames_w5pmr")

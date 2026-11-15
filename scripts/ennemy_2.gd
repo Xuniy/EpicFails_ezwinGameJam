@@ -1,6 +1,8 @@
 extends CharacterBody2D
 
 const ITEM_SCENE = preload("res://scences/item_au_sol.tscn")
+const HIT_PARTICLES = preload("res://sang_particule.tscn")
+const DASH_EFFECT = preload("res://scences/fox_dash_effect.tscn")
 const ITEM_TYPES = ["grenade", "tp", "nuke"]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
@@ -13,6 +15,7 @@ const WALK_ANIMATIONS = [
 @export var attack_distance: float = 140.0
 @export var dash_speed: float = 600.0
 @export var dash_duration: float = 0.35
+@export var dash_windup: float = 0.4
 @export var attack_cooldown: float = 1.2
 @export var default_target: Node2D
 
@@ -22,6 +25,9 @@ const WALK_ANIMATIONS = [
 
 var target: Node2D
 var is_attacking: bool = false
+var is_preparing: bool = false
+var windup_remaining: float = 0.0
+var _dash_target: Node2D
 var dash_direction: Vector2 = Vector2.DOWN
 var dash_remaining: float = 0.0
 var cooldown_remaining: float = 0.0
@@ -38,6 +44,13 @@ func _physics_process(delta: float) -> void:
 		return
 
 	cooldown_remaining = maxf(cooldown_remaining - delta, 0.0)
+
+	if is_preparing:
+		velocity = Vector2.ZERO
+		windup_remaining -= delta
+		if windup_remaining <= 0.0:
+			start_dash()
+		return
 
 	if is_attacking:
 		process_dash(delta)
@@ -59,7 +72,6 @@ func _physics_process(delta: float) -> void:
 
 	if global_position.distance_to(current_target.global_position) <= attack_distance:
 		attack(current_target)
-		process_dash(delta)
 		return
 
 	var direction := global_position.direction_to(current_target.global_position)
@@ -75,12 +87,28 @@ func _physics_process(delta: float) -> void:
 
 
 func attack(victim: Node2D) -> void:
-	if dead or is_attacking or cooldown_remaining > 0.0:
+	if dead or is_attacking or is_preparing or cooldown_remaining > 0.0:
 		return
 	if not is_instance_valid(victim):
 		return
 
-	var direction := global_position.direction_to(victim.global_position)
+	_dash_target = victim
+	is_preparing = true
+	windup_remaining = maxf(dash_windup, 0.0)
+	velocity = Vector2.ZERO
+	update_animation(global_position.direction_to(victim.global_position), false)
+	if windup_remaining <= 0.0:
+		start_dash()
+
+
+func start_dash() -> void:
+	is_preparing = false
+	windup_remaining = 0.0
+	if not is_instance_valid(_dash_target) or _dash_target.is_queued_for_deletion():
+		finish_dash()
+		return
+
+	var direction := global_position.direction_to(_dash_target.global_position)
 	if not direction.is_zero_approx():
 		dash_direction = direction
 	attack_zone.global_rotation = dash_direction.angle()
@@ -91,9 +119,23 @@ func attack(victim: Node2D) -> void:
 	is_attacking = true
 	velocity = dash_direction * dash_speed
 	update_animation(dash_direction, true)
+	spawn_dash_effect()
+
+
+func spawn_dash_effect() -> void:
+	var world := get_tree().current_scene as Node2D
+	if world == null:
+		return
+	var effect := DASH_EFFECT.instantiate() as Node2D
+	effect.source = self
+	effect.direction = dash_direction
+	effect.position = world.to_local(global_position)
+	world.add_child(effect)
 
 
 func process_dash(delta: float) -> void:
+	if not is_attacking:
+		return
 	var step := minf(delta, dash_remaining)
 	velocity = dash_direction * dash_speed
 	var collision := move_and_collide(velocity * step)
@@ -134,6 +176,9 @@ func damage_in_attack_zone() -> void:
 
 func finish_dash() -> void:
 	is_attacking = false
+	is_preparing = false
+	windup_remaining = 0.0
+	_dash_target = null
 	dash_remaining = 0.0
 	cooldown_remaining = maxf(attack_cooldown, 0.0)
 	velocity = Vector2.ZERO
@@ -163,13 +208,24 @@ func return_to_coop() -> void:
 
 
 func take_damage(amount: float) -> void:
-	if dead or is_queued_for_deletion():
+	if dead or is_queued_for_deletion() or amount <= 0.0:
 		return
+	spawn_hit_particles()
 	health -= amount
 	if health <= 0.0:
 		dead = true
 		drop_item()
 		queue_free()
+
+
+func spawn_hit_particles() -> void:
+	var world := get_tree().current_scene as Node2D
+	if world == null:
+		return
+	var effect := HIT_PARTICLES.instantiate() as GPUParticles2D
+	effect.position = world.to_local(global_position)
+	world.add_child(effect)
+	effect.restart()
 
 
 func drop_item() -> void:

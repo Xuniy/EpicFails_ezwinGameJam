@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/fox_dash_effect.gd" id="1_effect"]
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+colors = PackedColorArray(1, 0.55, 0.15, 0, 1, 0.9, 0.6, 0.6)
+
+[node name="FoxDashEffect" type="Node2D"]
+z_index = 1
+texture_filter = 1
+script = ExtResource("1_effect")
+
+[node name="Trail" type="Line2D" parent="."]
+width = 7.0
+gradient = SubResource("Gradient_trail")
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
+
+[node name="Slash" type="Node2D" parent="."]
+
+[node name="Claw1" type="Line2D" parent="Slash"]
+width = 4.0
+default_color = Color(1, 0.7, 0.25, 1)
+antialiased = true
+
+[node name="Claw2" type="Line2D" parent="Slash"]
+width = 3.0
+default_color = Color(1, 0.95, 0.75, 1)
+antialiased = true
+
+[node name="Claw3" type="Line2D" parent="Slash"]
+width = 2.0
+default_color = Color(1, 1, 0.95, 1)
+antialiased = true

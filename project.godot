@@ -21,7 +21,6 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom_font="res://assets/fonts/fibberish.ttf"
 theme/default_font_size=24
 
 [input]

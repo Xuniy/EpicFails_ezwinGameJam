@@ -9,11 +9,23 @@ const ICONS = {
 
 @export_enum("grenade", "tp", "nuke") var item_type: String = "grenade"
 @export var icon: Texture2D
+@export var bob_height: float = 3.0
+@export var bob_speed: float = 3.0
+
+@onready var sprite: Sprite2D = $Sprite2D
+@onready var resting_y: float = sprite.position.y
+
+var bob_time: float = 0.0
 
 
 func _ready() -> void:
-	$Sprite2D.texture = ICONS.get(item_type)
+	sprite.texture = ICONS.get(item_type)
 	body_entered.connect(_on_body_entered)
+
+
+func _process(delta: float) -> void:
+	bob_time += delta
+	sprite.position.y = resting_y + sin(bob_time * bob_speed) * bob_height
 
 
 func _on_body_entered(body: Node2D) -> void:
