@@ -9,9 +9,13 @@ extends Control
 @export var smoke_texture: Texture2D
 @export var duration: float = 45.0
 @export var display_scale: float = 4.0
+## Échelle de la fumée, relative à display_scale : chaque pixel de fumée est ×3.
+@export var smoke_scale_factor: float = 3.0
 
 const JOINT_REGION := Rect2(0, 13, 32, 6)  # zone du joint dans joint_bar.png
-const EMBER_COLUMN: float = 27.0            # colonne où commence la braise rouge
+# Unité qui se déplace : la ligne marron qui délimite la braise (colonne 26) + la braise rouge.
+const EMBER_COLUMN: float = 26.0
+const EMBER_WIDTH: float = 6.0             # 32 - EMBER_COLUMN
 const SMOKE_FRAME_SIZE: int = 8
 const SMOKE_FRAME_COUNT: int = 6
 const SMOKE_FPS: float = 5.0
@@ -28,7 +32,7 @@ func _ready() -> void:
 	smoke = AnimatedSprite2D.new()
 	smoke.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	smoke.centered = false
-	smoke.scale = Vector2.ONE * display_scale
+	smoke.scale = Vector2.ONE * display_scale * smoke_scale_factor
 	smoke.sprite_frames = _build_smoke_frames()
 	smoke.animation = &"fume"
 	add_child(smoke)
@@ -70,11 +74,12 @@ func _update_smoke() -> void:
 		return
 
 	smoke.visible = amount > 0.0
-	# Centre la fumée sur la braise (la braise fait environ 5 px de large dans la texture).
-	var ember_center_x: float = (_ember_x() + 2.5) * display_scale
+	# Centre la fumée sur l'unité braise, et pose sa base sur le haut du joint.
+	var smoke_px: float = display_scale * smoke_scale_factor
+	var ember_center_x: float = (_ember_x() + EMBER_WIDTH * 0.5) * display_scale
 	smoke.position = Vector2(
-		ember_center_x - SMOKE_FRAME_SIZE * display_scale * 0.5,
-		_joint_top() - SMOKE_FRAME_SIZE * display_scale
+		ember_center_x - SMOKE_FRAME_SIZE * smoke_px * 0.5,
+		_joint_top() - SMOKE_FRAME_SIZE * smoke_px
 	)
 
 
@@ -92,11 +97,11 @@ func _draw() -> void:
 		Rect2(JOINT_REGION.position.x, JOINT_REGION.position.y, ember_x, JOINT_REGION.size.y)
 	)
 
-	# Braise rouge, collée à la fin du papier.
+	# Ligne marron + braise rouge : bougent ensemble, à la fin du papier restant.
 	var ember_src := Rect2(
 		EMBER_COLUMN,
 		JOINT_REGION.position.y,
-		JOINT_REGION.size.x - EMBER_COLUMN,
+		EMBER_WIDTH,
 		JOINT_REGION.size.y
 	)
 	draw_texture_rect_region(
