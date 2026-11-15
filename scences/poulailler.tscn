@@ -6,7 +6,9 @@
 [ext_resource type="TileSet" uid="uid://ds2qfyqmnuk61" path="res://assets/kenney_farm/tilesets/planchers.tres" id="3_2yv8w"]
 [ext_resource type="TileSet" uid="uid://cpq6m17ueyj71" path="res://assets/kenney_farm/tilesets/clotures.tres" id="4_2yv8w"]
 [ext_resource type="TileSet" uid="uid://5e3hyplvilt5" path="res://assets/kenney_farm/tilesets/toits.tres" id="7_68g2c"]
+[ext_resource type="Texture2D" uid="uid://cjhf3gwa3wqw0" path="res://assets/seggs.png" id="8_av1cu"]
 [ext_resource type="TileSet" uid="uid://hqwkeehsr0es" path="res://assets/kenney_farm/tilesets/decors.tres" id="8_w5dx3"]
+[ext_resource type="Texture2D" uid="uid://bnabcgkgsuvtn" path="res://assets/ombre.svg" id="9_s00oa"]
 
 [node name="poulailler" type="StaticBody2D" unique_id=1441661232]
 editor_description = "Poulailler a proteger. Les TileMapLayer composent le batiment et son enclos. La collision suit uniquement le batiment ; les clotures restent decoratives."
@@ -58,7 +60,7 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAD+/wMAAAABAAIAAAD//wMAAAABAAIAAAACAAMAAAABAAIAAAACAAEAAAACAAIAAAADAAMAAAABAAIAAAADAAEAAAACAAIAAAAEAAMAAAABAAIAAAAEAAEAAAACAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAA=")
 tile_set = ExtResource("4_2yv8w")
 
-[node name="Batiment" type="Node2D" parent="Ferme"]
+[node name="Batiment" type="Node2D" parent="Ferme" unique_id=437891209]
 editor_description = "Les murs, pignons et toits deviennent transparents lorsqu'un personnage passe dans ZoneTransparence."
 y_sort_enabled = true
 
@@ -128,11 +130,89 @@ tile_set = ExtResource("8_w5dx3")
 position = Vector2(9, -9.399994)
 polygon = PackedVector2Array(-99, -126.399994, 260, 45, 103, 131.6, 370, 275, 80, 402, -533, 80.600006)
 
-[node name="ZoneTransparence" type="Area2D" parent="."]
+[node name="ZoneTransparence" type="Area2D" parent="." unique_id=960390021]
 editor_description = "Zone couverte par le toit et les murs a l'arriere du poulailler. Detecte le joueur (couche 1) et les ennemis (couche 2)."
 collision_layer = 0
 collision_mask = 3
 monitorable = false
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ZoneTransparence"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ZoneTransparence" unique_id=1094965082]
 polygon = PackedVector2Array(-180, -320, 285, -88, 285, 48, -90, -134, -285, -36, -285, -164)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=889476203]
+position = Vector2(-300, 56.600006)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D" unique_id=1277463273]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(-0.33333302, 7.6666665)
+scale = Vector2(0.54166675, 1)
+texture = ExtResource("9_s00oa")
+
+[node name="Sprite2D6" type="Sprite2D" parent="." unique_id=849545643]
+position = Vector2(53, 253.6)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D6" unique_id=2002303891]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(-4.7683716e-07, 7.333333)
+scale = Vector2(0.5, 1)
+texture = ExtResource("9_s00oa")
+
+[node name="Sprite2D5" type="Sprite2D" parent="." unique_id=831365655]
+position = Vector2(-112, 151.6)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D5" unique_id=1285172769]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(-0.33333397, 7.6666665)
+scale = Vector2(0.46875, 1)
+texture = ExtResource("9_s00oa")
+
+[node name="Sprite2D4" type="Sprite2D" parent="." unique_id=576167155]
+position = Vector2(-195, 56.600006)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D4" unique_id=1370658085]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(0.99999994, 6.666666)
+scale = Vector2(0.53125, 1)
+texture = ExtResource("9_s00oa")
+
+[node name="Sprite2D2" type="Sprite2D" parent="." unique_id=2030727246]
+position = Vector2(-7, 124.600006)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D2" unique_id=1039538785]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(-0.33333302, 7.3333325)
+scale = Vector2(0.53125, 1)
+texture = ExtResource("9_s00oa")
+
+[node name="Sprite2D3" type="Sprite2D" parent="." unique_id=1769319670]
+position = Vector2(-230, 128.6)
+scale = Vector2(3, 3)
+texture = ExtResource("8_av1cu")
+
+[node name="Ombre" type="Sprite2D" parent="Sprite2D3" unique_id=159518531]
+self_modulate = Color(1, 1, 1, 0.3)
+z_index = -2
+texture_filter = 1
+position = Vector2(-0.33333302, 7.9999995)
+scale = Vector2(0.5, 1)
+texture = ExtResource("9_s00oa")
