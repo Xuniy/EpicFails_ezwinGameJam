@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://brbo8sju2u55r" path="res://assets/weapon_image.png" id="4_eqdch"]
 [ext_resource type="Texture2D" uid="uid://cft18d54dkn6u" path="res://assets/fume.png" id="9_641ry"]
 [ext_resource type="Texture2D" uid="uid://bnabcgkgsuvtn" path="res://assets/ombre.svg" id="10_ombre"]
+[ext_resource type="AudioStream" uid="uid://8c5fis8vkaf5" path="res://sounds/tir_balle.wav" id="14_y8tx1"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0pf81"]
 
@@ -484,3 +485,7 @@ position = Vector2(-14.5, -5.5)
 
 [node name="haut_droite" type="Marker2D" parent="pos_fume" unique_id=1391698213]
 position = Vector2(14.5, -5.5)
+
+[node name="tir_balle_son" type="AudioStreamPlayer2D" parent="." unique_id=1441693980]
+stream = ExtResource("14_y8tx1")
+attenuation = 1.624505

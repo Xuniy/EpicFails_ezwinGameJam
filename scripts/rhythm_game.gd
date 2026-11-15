@@ -3,7 +3,7 @@ extends Control
 
 ## Mini-jeu de rythme pour fumer : une seule ligne horizontale. Les boutons arrivent
 ## vers la cible ; une bonne touche au bon moment ajoute 5 s au joint (plafonné à sa durée).
-## Une mauvaise touche ne fait rien. Démarré par la croix haut (manette) ou la touche A (clavier) quand le joint n'est pas plein.
+## Une mauvaise touche joue le son d'échec sans remplir le joint. Démarré par la croix haut (manette) ou la touche A (clavier) quand le joint n'est pas plein.
 ## Voies au clavier : touches 1 2 3 4. Affichage manette ou clavier selon le dernier appareil branché.
 
 class NoteData:
@@ -13,6 +13,13 @@ class NoteData:
 
 
 @export var joint: JointBar
+
+const SUCCESS_SOUND = preload("res://sounds/inspire_bien.wav")
+const FAILURE_SOUND = preload("res://sounds/inspire_joint_mal.wav")
+const FULL_SOUND = preload("res://sounds/join_full.wav")
+
+var joint_sound: AudioStreamPlayer
+var full_sound: AudioStreamPlayer
 
 const BUTTON_TEXTURES := [
 	preload("res://assets/buttons/button_y.png"),
@@ -49,6 +56,13 @@ var using_gamepad: bool = false
 
 
 func _ready() -> void:
+	joint_sound = AudioStreamPlayer.new()
+	joint_sound.name = "SonJoint"
+	add_child(joint_sound)
+	full_sound = AudioStreamPlayer.new()
+	full_sound.name = "SonJointPlein"
+	full_sound.stream = FULL_SOUND
+	add_child(full_sound)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	using_gamepad = not Input.get_connected_joypads().is_empty()
@@ -121,7 +135,7 @@ func _start() -> void:
 
 
 func _try_hit(lane: int) -> void:
-	# Mauvais bouton ou pas au bon moment : rien ne se passe.
+	# Bonne touche dans la fenêtre de temps : son réussi ; sinon, son raté.
 	var best: NoteData = null
 	var best_dt: float = HIT_WINDOW
 	for note in notes:
@@ -132,14 +146,23 @@ func _try_hit(lane: int) -> void:
 			best = note
 			best_dt = dt
 	if best == null:
+		_play_joint_sound(FAILURE_SOUND)
 		return
 
 	best.state = 1
+	_play_joint_sound(SUCCESS_SOUND)
 	# 5 secondes sur la durée du joint (plafonné à 100 %).
 	joint.amount = minf(1.0, joint.amount + SECONDS_PER_HIT / joint.duration)
 	# Joint plein : le mini-jeu se ferme tout seul.
 	if joint.amount >= 1.0:
+		full_sound.play()
 		_close()
+
+
+func _play_joint_sound(stream: AudioStream) -> void:
+	joint_sound.stop()
+	joint_sound.stream = stream
+	joint_sound.play()
 
 
 func _close() -> void:

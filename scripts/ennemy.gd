@@ -3,6 +3,10 @@ extends CharacterBody2D
 const ITEM_SCENE = preload("res://scences/item_au_sol.tscn")
 const HIT_PARTICLES = preload("res://sang_particule.tscn")
 const FORK_SLASH = preload("res://scripts/fork_slash_effect.gd")
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const ATTACK_SOUND = preload("res://sounds/attack_fermier.wav")
+const DAMAGE_SOUND = preload("res://sounds/degat_fermier.wav")
+const DEATH_SOUND = preload("res://sounds/mort_fermier.wav")
 const ITEM_TYPES = ["grenade", "tp", "nuke"]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
@@ -122,6 +126,7 @@ func take_damage(amount: float) -> void:
 		return
 	spawn_hit_particles()
 	health -= amount
+	SOUND_EFFECT.play_at(DEATH_SOUND if health <= 0.0 else DAMAGE_SOUND, self)
 
 	if health <= 0.0:
 		drop_item()
@@ -140,6 +145,7 @@ func spawn_hit_particles() -> void:
 
 func attack(victim: Node2D) -> void:
 	is_attacking = true
+	SOUND_EFFECT.play_at(ATTACK_SOUND, self)
 	velocity = Vector2.ZERO
 	update_animation(global_position.direction_to(victim.global_position), false)
 

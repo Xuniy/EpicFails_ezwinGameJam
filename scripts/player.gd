@@ -6,6 +6,12 @@ const WALK_ANIMATIONS = [
 ]
 const ITEM_LANCE_SCENE = preload("res://scences/item_lance.tscn")
 const NUKE_SCENE = preload("res://scences/nuke.tscn")
+const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
+const TELEPORT_SOUND = preload("res://sounds/bruit_tp.wav")
+const WALK_SOUND = preload("res://sounds/marche_player.wav")
+const DAMAGE_SOUND = preload("res://sounds/degats_player.wav")
+
+var walk_sound: AudioStreamPlayer2D
 
 const ITEM_TEXTURES = {
 	"grenade": preload("res://assets/eggrenade.png"),
@@ -58,6 +64,10 @@ var selected_item: String:
 @onready var health: float = max_health
 
 func _ready() -> void:
+	walk_sound = AudioStreamPlayer2D.new()
+	walk_sound.name = "SonMarche"
+	walk_sound.stream = WALK_SOUND
+	add_child(walk_sound)
 	$detection_ennemy.body_entered.connect(_on_enemy_entered)
 	$detection_ennemy.body_exited.connect(_on_enemy_exited)
 	fume.play("fume")
@@ -282,8 +292,18 @@ func _physics_process(_delta: float) -> void:
 		"gauche", "droite", "haut", "bas"
 	)
 	velocity = direction * speed
+	var previous_position := global_position
 	move_and_slide()
+	_update_walk_sound(not global_position.is_equal_approx(previous_position))
 	update_animation(direction)
+
+
+func _update_walk_sound(moving: bool) -> void:
+	if moving and health > 0.0:
+		if not walk_sound.playing:
+			walk_sound.play()
+	else:
+		walk_sound.stop()
 
 
 func update_animation(direction: Vector2) -> void:
@@ -311,9 +331,12 @@ func take_damage(amount: float) -> void:
 		return
 
 	health = clampf(health - amount, 0.0, max_health)
+	if amount > 0.0 and health > 0.0:
+		SOUND_EFFECT.play_at(DAMAGE_SOUND, self)
 	print("[Player] Vie : ", health, "/", max_health)
 
 	if health <= 0.0:
+		walk_sound.stop()
 		print("[Player] Mort !")
 		EndScreen.show_end(get_tree(), "Chicken Norris est mort")
 		
@@ -361,6 +384,7 @@ func teleport_to(target: Vector2) -> bool:
 		return false
 
 	global_position = target
+	SOUND_EFFECT.play_at(TELEPORT_SOUND, self)
 	return true
 func use_item_at(item_type: String, target: Vector2) -> void:
 	if not items.has(item_type) or items[item_type] <= 0:

@@ -5,8 +5,6 @@ extends Control
 
 # Bloc de la barre de joint : 130 px de haut, dont 106 px au-dessus du joint pour la fumée.
 const JOINT_SIZE := Vector2(144, 130)
-const JOINT_VISUAL_HEIGHT: float = 24.0   # 6 lignes de joint × échelle 4
-const JOINT_TOP: float = 6.0              # position du joint lui-même, près du bord haut
 const MARGIN: float = 16.0
 const GAP: float = 12.0
 const RHYTHM_WIDTH: float = 420.0
@@ -18,9 +16,10 @@ const EMPTY_JOINT_INTERVAL: float = 2.0
 @onready var player = $"../../Player"
 @onready var poulailler = $"../../poulailler"
 
-@onready var health_box = $VBoxContainer
-@onready var player_bar: HealthBar = $VBoxContainer/vieplayer
-@onready var coop_bar: HealthBar = $VBoxContainer/viepoulailler
+@onready var health_box: VBoxContainer = $PlayerHealth
+@onready var coop_health_box: VBoxContainer = $CoopHealth
+@onready var player_bar: HealthBar = $PlayerHealth/vieplayer
+@onready var coop_bar: HealthBar = $CoopHealth/viepoulailler
 @onready var joint_bar = $JointBar
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
@@ -41,7 +40,7 @@ func _ready() -> void:
 	_previous_player_health = player.health
 	blood_overlay.modulate.a = 0.0
 
-	_layout_top_left()
+	_layout_hud()
 	_add_rhythm_game()
 
 	update_health_bars()
@@ -81,19 +80,39 @@ func _update_empty_joint_damage(delta: float) -> void:
 		_empty_joint_timer -= EMPTY_JOINT_INTERVAL
 		player.take_damage(EMPTY_JOINT_DAMAGE)
 
-# Barre de joint tout en haut à gauche, barres de vie juste en dessous.
-func _layout_top_left() -> void:
-	joint_bar.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+# Joint en bas à gauche, vie du joueur en bas à droite.
+func _layout_hud() -> void:
+	joint_bar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	joint_bar.size = JOINT_SIZE
-	# Le joint est dessiné en bas du bloc : on remonte le bloc pour que le joint soit en haut.
-	joint_bar.position = Vector2(MARGIN, JOINT_TOP - (JOINT_SIZE.y - JOINT_VISUAL_HEIGHT))
-	health_box.position = Vector2(MARGIN, JOINT_TOP + JOINT_VISUAL_HEIGHT + GAP)
+	joint_bar.offset_left = MARGIN
+	joint_bar.offset_right = MARGIN + JOINT_SIZE.x
+	joint_bar.offset_top = -MARGIN - JOINT_SIZE.y
+	joint_bar.offset_bottom = -MARGIN
+	health_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	health_box.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	health_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	health_box.reset_size()
+	health_box.offset_left = -MARGIN - health_box.size.x
+	health_box.offset_right = -MARGIN
+	health_box.offset_top = -MARGIN - health_box.size.y
+	health_box.offset_bottom = -MARGIN
+	coop_health_box.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	coop_health_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	coop_health_box.reset_size()
+	coop_health_box.offset_left = -coop_health_box.size.x * 0.5
+	coop_health_box.offset_right = coop_health_box.size.x * 0.5
+	coop_health_box.offset_top = MARGIN
+	coop_health_box.offset_bottom = MARGIN + coop_health_box.size.y
 
 
 # Mini-jeu de rythme à côté de la barre de joint.
 func _add_rhythm_game() -> void:
 	var rhythm := RhythmGame.new()
 	rhythm.joint = joint_bar
-	rhythm.position = Vector2(MARGIN + JOINT_SIZE.x + MARGIN, JOINT_TOP)
 	rhythm.size = Vector2(RHYTHM_WIDTH, RHYTHM_HEIGHT)
 	add_child(rhythm)
+	rhythm.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	rhythm.offset_left = MARGIN
+	rhythm.offset_right = MARGIN + RHYTHM_WIDTH
+	rhythm.offset_top = -MARGIN - JOINT_SIZE.y - GAP - RHYTHM_HEIGHT
+	rhythm.offset_bottom = -MARGIN - JOINT_SIZE.y - GAP
