@@ -1,6 +1,6 @@
 extends Node2D
 
-var enemy_scene: PackedScene = preload("res://scences/ennemy.tscn")
+var enemy_scene: PackedScene = preload("res://scences/ennemy2.tscn")
 @onready var poulailler: Node2D = $"../poulailler"
 @export var spawn_radius: float = 3000.0
 @export var screen_margin: float = 100.0

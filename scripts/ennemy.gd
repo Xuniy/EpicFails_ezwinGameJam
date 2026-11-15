@@ -12,12 +12,15 @@ const WALK_ANIMATIONS = [
 @export var damage: float = 2.0
 @export var stop_distance: float = 24.0
 @export var attack_distance: float = 30
-@export var attack_windup: float = 0.4
+@export var attack_windup: float = 0.1
 @export var attack_cooldown: float = 1.0
 var is_attacking: bool = false
 
 @onready var attack_zone: Area2D = $attack_zone
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var fourche_pivot: Node2D = get_node_or_null("fourche_pivot")
+@onready var fourche: Sprite2D = get_node_or_null("fourche_pivot/fourche")
+@onready var fourche_stoique: Sprite2D = get_node_or_null("fourche_stoique")
 
 
 # Le point à rejoindre au poulailler, donné par le spawner.
@@ -29,6 +32,11 @@ var target: Node2D
 
 func _ready() -> void:
 	add_to_group("enemies")
+	if fourche != null:
+		fourche.hide()
+	if fourche_stoique != null:
+		fourche_stoique.show()
+	update_fork_depth()
 
 
 func _physics_process(_delta: float) -> void:
@@ -80,6 +88,18 @@ func update_animation(direction: Vector2, moving: bool) -> void:
 	else:
 		animated_sprite.animation = animation
 		animated_sprite.stop()
+	update_fork_depth()
+
+
+func update_fork_depth() -> void:
+	var behind: bool = animated_sprite.animation in [
+		&"walk_up", &"walk_up_left", &"walk_up_right"
+	]
+	var depth := -1 if behind else 1
+	if fourche_pivot != null:
+		fourche_pivot.z_index = depth
+	if fourche_stoique != null:
+		fourche_stoique.z_index = depth
 
 
 func focus_player(player: Node2D) -> void:
@@ -109,8 +129,30 @@ func attack(victim: Node2D) -> void:
 		victim.global_position
 	).angle()
 
-	# Laisse au joueur le temps d'esquiver.
-	await get_tree().create_timer(attack_windup).timeout
+	if fourche_pivot != null and fourche != null:
+		# Le fermier anime sa fourche pendant la préparation du coup.
+		fourche_pivot.global_rotation = attack_zone.global_rotation
+		var base_angle := fourche_pivot.rotation
+		fourche_pivot.rotation = base_angle - deg_to_rad(35.0)
+		if fourche_stoique != null:
+			fourche_stoique.hide()
+		fourche.show()
+
+		var tween := create_tween()
+		tween.tween_property(
+			fourche_pivot,
+			"rotation",
+			base_angle + deg_to_rad(35.0),
+			maxf(attack_windup, 0.01)
+		)
+		await tween.finished
+
+		fourche.hide()
+		if fourche_stoique != null:
+			fourche_stoique.show()
+	else:
+		# Les ennemis sans arme gardent leur pose pendant ce délai.
+		await get_tree().create_timer(maxf(attack_windup, 0.01)).timeout
 
 	for body in attack_zone.get_overlapping_bodies():
 		if body == default_target or body == target:
