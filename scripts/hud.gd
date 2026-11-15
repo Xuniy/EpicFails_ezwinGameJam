@@ -8,6 +8,9 @@ const MARGIN: float = 16.0
 const GAP: float = 12.0
 const RHYTHM_WIDTH: float = 420.0
 const RHYTHM_HEIGHT: float = 70.0
+# Joint à 0 : le joueur perd ce montant de vie, à cet intervalle, tant que le joint est vide.
+const EMPTY_JOINT_DAMAGE: float = 5.0
+const EMPTY_JOINT_INTERVAL: float = 2.0
 
 @onready var player = $"../../Player"
 @onready var poulailler = $"../../poulailler"
@@ -18,6 +21,8 @@ const RHYTHM_HEIGHT: float = 70.0
 @onready var joint_bar = $JointBar
 @onready var compass = $Compass
 @onready var hotbar = $Hotbar
+
+var _empty_joint_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -33,14 +38,26 @@ func _ready() -> void:
 	update_health_bars()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	update_health_bars()
+	_update_empty_joint_damage(delta)
 
 
 func update_health_bars() -> void:
 	player_bar.value = player.health
 	coop_bar.value = poulailler.health
 
+
+# Joint vide : dégâts au joueur toutes les 2 secondes ; le compteur repart à zéro dès que le joint n'est plus vide.
+func _update_empty_joint_damage(delta: float) -> void:
+	if joint_bar.amount > 0.0:
+		_empty_joint_timer = 0.0
+		return
+
+	_empty_joint_timer += delta
+	if _empty_joint_timer >= EMPTY_JOINT_INTERVAL:
+		_empty_joint_timer -= EMPTY_JOINT_INTERVAL
+		player.take_damage(EMPTY_JOINT_DAMAGE)
 
 # Barre de joint tout en haut à gauche, barres de vie juste en dessous.
 func _layout_top_left() -> void:
