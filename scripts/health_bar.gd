@@ -2,13 +2,15 @@ class_name HealthBar
 extends Control
 
 ## Barre de vie dessinée : le cadre sert de fond, la jauge est rognée
-## sur la zone exacte de la barre dans la texture (colonnes 16 à 60, lignes 5 et 6).
+## pour suivre la piste exacte du cadre.
+## - track_region : zone de la piste dans le cadre (coordonnées de la texture du cadre)
+## - fill_region  : zone de la jauge dans la texture de remplissage (même taille que la piste)
 
 @export var frame: Texture2D
 @export var fill: Texture2D
 @export var display_scale: float = 2.0
-
-const FILL_REGION := Rect2(16, 5, 45, 2)
+@export var track_region := Rect2(16, 5, 45, 2)
+@export var fill_region := Rect2(16, 5, 45, 2)
 
 var max_value: float = 100.0
 var value: float = 100.0
@@ -37,9 +39,12 @@ func _draw() -> void:
 	if ratio <= 0.0:
 		return
 
-	var source := Rect2(FILL_REGION.position, Vector2(FILL_REGION.size.x * ratio, FILL_REGION.size.y))
 	var dest := Rect2(
-		FILL_REGION.position * display_scale,
-		Vector2(FILL_REGION.size.x * ratio, FILL_REGION.size.y) * display_scale
+		track_region.position * display_scale,
+		Vector2(track_region.size.x * ratio, track_region.size.y) * display_scale
+	)
+	var source := Rect2(
+		fill_region.position,
+		Vector2(fill_region.size.x * ratio, fill_region.size.y)
 	)
 	draw_texture_rect_region(fill, dest, source)
