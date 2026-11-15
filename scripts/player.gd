@@ -43,6 +43,8 @@ var selected_index: int = 0
 var mouse_aim_active: bool = false
 var _last_mouse_position := Vector2.ZERO
 var _right_was_down: bool = false
+var _left_was_down: bool = false
+var _left_consumed: bool = false
 
 var selected_item: String:
 	get:
@@ -125,7 +127,8 @@ func get_aim_input() -> Vector2:
 
 # Tir : gâchette droite (manette) ou clic gauche (souris).
 func is_firing() -> bool:
-	return Input.is_action_pressed("tir") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var mouse_fire := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not _left_consumed and mouse_throw_item == ""
+	return Input.is_action_pressed("tir") or mouse_fire
 
 
 func cycle_item(step: int) -> void:
@@ -133,7 +136,7 @@ func cycle_item(step: int) -> void:
 
 
 # Clic droit maintenu : lance-pierre. La souris tirée d'un côté envoie l'item du côté opposé ;
-# plus la traction est longue, plus il va loin.
+# plus la traction est longue, plus il va loin. Clic gauche pour valider, relâcher le droit annule.
 var mouse_throw_item: String = ""
 var mouse_throw_anchor := Vector2.ZERO
 @export var sling_power: float = 1.0
@@ -159,6 +162,10 @@ func get_sling_target() -> Vector2:
 		return origin
 	var distance := minf(pull.length() * sling_power, item_aim.max_distance)
 	return origin - pull.normalized() * distance
+
+
+func cancel_mouse_throw() -> void:
+	mouse_throw_item = ""
 
 
 func release_mouse_throw() -> void:
@@ -248,7 +255,15 @@ func _update_mouse_input() -> void:
 		if right_down:
 			start_mouse_throw()
 		else:
-			release_mouse_throw()
+			cancel_mouse_throw()
+	# Clic gauche pendant la visée : valide le lancer, sans tirer à l'arme.
+	var left_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	if not left_down:
+		_left_consumed = false
+	elif not _left_was_down and mouse_throw_item != "":
+		release_mouse_throw()
+		_left_consumed = true
+	_left_was_down = left_down
 
 
 func _physics_process(_delta: float) -> void:
