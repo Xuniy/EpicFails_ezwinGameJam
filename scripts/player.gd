@@ -41,6 +41,8 @@ var items := {
 var item_order := ["grenade", "tp", "nuke"]
 var selected_index: int = 0
 var mouse_aim_active: bool = false
+var _last_mouse_position := Vector2.ZERO
+var _right_was_down: bool = false
 
 var selected_item: String:
 	get:
@@ -54,33 +56,22 @@ func _ready() -> void:
 	$detection_ennemy.body_entered.connect(_on_enemy_entered)
 	$detection_ennemy.body_exited.connect(_on_enemy_exited)
 	fume.play("fume")
+	_last_mouse_position = get_viewport().get_mouse_position()
 	update_smoke_position()
 	
+# Molette lue avant l'interface : un Control ne peut pas la bloquer.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var click := event as InputEventMouseButton
+		if click.pressed and not aiming_item:
+			if click.button_index == MOUSE_BUTTON_WHEEL_UP:
+				cycle_item(-1)
+			elif click.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				cycle_item(1)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo():
-		return
-
-	# Souris : déplacement = visée, molette = changer d'item, clic droit = lancer.
-	if event is InputEventMouseMotion:
-		mouse_aim_active = true
-	elif event is InputEventJoypadMotion:
-		var joy := event as InputEventJoypadMotion
-		if joy.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y] and absf(joy.axis_value) > 0.2:
-			mouse_aim_active = false
-	elif event is InputEventMouseButton:
-		var click := event as InputEventMouseButton
-		# Cliquer suffit à viser au curseur, même sans avoir bougé la souris.
-		if click.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
-			mouse_aim_active = true
-		if click.pressed and click.button_index == MOUSE_BUTTON_WHEEL_UP and not aiming_item:
-			cycle_item(-1)
-		elif click.pressed and click.button_index == MOUSE_BUTTON_WHEEL_DOWN and not aiming_item:
-			cycle_item(1)
-		elif click.button_index == MOUSE_BUTTON_RIGHT:
-			if click.pressed:
-				start_mouse_throw()
-			else:
-				release_mouse_throw()
 		return
 
 	# Maintenir pour viser.
@@ -226,7 +217,27 @@ func update_camera_zoom(target: Vector2, aiming: bool) -> void:
 
 
 
+# Souris lue à chaque frame : visée au curseur et clic droit (arc).
+func _update_mouse_input() -> void:
+	var mouse := get_viewport().get_mouse_position()
+	var stick := Input.get_vector("sr_gauche", "sr_droite", "sr_haut", "sr_bas")
+	var clicking := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	if stick.length() > 0.2:
+		mouse_aim_active = false
+	elif mouse.distance_squared_to(_last_mouse_position) > 0.25 or clicking:
+		mouse_aim_active = true
+	_last_mouse_position = mouse
+	var right_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	if right_down != _right_was_down:
+		_right_was_down = right_down
+		if right_down:
+			start_mouse_throw()
+		else:
+			release_mouse_throw()
+
+
 func _physics_process(_delta: float) -> void:
+	_update_mouse_input()
 	var direction := Input.get_vector(
 		"gauche", "droite", "haut", "bas"
 	)
