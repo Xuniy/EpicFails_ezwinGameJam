@@ -12,23 +12,6 @@ var game_over: bool = false
 var show_tutorial: bool = false
 
 
-func _ready() -> void:
-	get_tree().scene_changed.connect(_add_markers)
-
-
-# Flèches hors cadre (ennemis, objets au sol) : ajoutées à chaque scène de jeu, rechargements compris.
-func _add_markers() -> void:
-	var scene := get_tree().current_scene
-	if scene == null or scene.find_child("Player", true, false) == null:
-		return
-	var layer := CanvasLayer.new()
-	layer.layer = 5
-	var markers := OffscreenMarkers.new()
-	markers.set_anchors_preset(Control.PRESET_FULL_RECT)
-	layer.add_child(markers)
-	scene.call_deferred("add_child", layer)
-
-
 func start_game(with_tutorial: bool) -> void:
 	game_over = false
 	show_tutorial = with_tutorial

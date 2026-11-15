@@ -37,6 +37,7 @@ var current: Dictionary = {}
 var bubble_timer: float = 0.0
 
 var mission_panel: PanelContainer
+var markers: OffscreenMarkers
 var mission_label: Label
 var mission_icon: TextureRect
 var speaker_label: Label
@@ -62,6 +63,9 @@ func _ready() -> void:
 		enemies_root = scene
 	is_xbox = GameState.input_device == GameState.DEVICE_XBOX
 
+	markers = OffscreenMarkers.new()
+	markers.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(markers)
 	_build_ui()
 	_set_spawner(false)
 	queue = _build_script()
@@ -355,6 +359,17 @@ func _joint_setup() -> void:
 func _finish() -> void:
 	_set_spawner(true)
 	mission_panel.visible = false
+	markers.queue_free()
+	_reset_loot()
+
+
+# Partie lancée : items du joueur et objets au sol du tutoriel (ou de la carte) sont retirés.
+func _reset_loot() -> void:
+	for key in player.items.keys():
+		player.items[key] = 0
+	player.selected_index = 0
+	for node in get_tree().get_nodes_in_group("ground_items"):
+		node.queue_free()
 
 
 func _spawn_enemy(pos: Vector2, drop: String) -> int:
