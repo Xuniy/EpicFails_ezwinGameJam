@@ -7,14 +7,15 @@ const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
 const ATTACK_SOUND = preload("res://sounds/attack_renard.wav")
 const DAMAGE_SOUND = preload("res://sounds/degat_renard.wav")
 const DEATH_SOUND = preload("res://sounds/mort_renard.wav")
-const ITEM_TYPES = ["grenade", "tp", "nuke"]
+# Dix issues équiprobables : TP 30 %, grenade 20 %, nuke 10 %, rien 40 %.
+const ITEM_TYPES = ["tp", "tp", "tp", "grenade", "grenade", "nuke", "", "", "", ""]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
 	&"walk_left", &"walk_up_left", &"walk_up", &"walk_up_right"
 ]
 
 @export var speed: float = 80.0
-@export var health: float = 15.0
+@export var health: float = 10.0
 @export_range(-40.0, 0.0, 1.0) var sound_volume_db: float = -6.0
 
 # Objet forcé à la mort (tutoriel). Vide = drop aléatoire.
@@ -26,6 +27,7 @@ var forced_drop: String = ""
 @export var dash_windup: float = 0.4
 @export var attack_cooldown: float = 1.2
 @export var default_target: Node2D
+@export var player_only: bool = false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_zone: Area2D = $attack_zone
@@ -176,6 +178,8 @@ func damage_in_attack_zone() -> void:
 			continue
 		if body.is_in_group("enemies") or not body.has_method("take_damage"):
 			continue
+		if player_only and body != default_target:
+			continue
 		var body_id: int = body.get_instance_id()
 		if dash_hits.has(body_id):
 			continue
@@ -242,7 +246,10 @@ func drop_item() -> void:
 	var world := get_tree().current_scene as Node2D
 	if world == null:
 		return
+	var item_type: String = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
+	if item_type == "":
+		return
 	var item = ITEM_SCENE.instantiate()
-	item.item_type = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
+	item.item_type = item_type
 	item.position = world.to_local(global_position)
 	world.add_child.call_deferred(item)

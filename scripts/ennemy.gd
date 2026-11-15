@@ -7,7 +7,8 @@ const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
 const ATTACK_SOUND = preload("res://sounds/attack_fermier.wav")
 const DAMAGE_SOUND = preload("res://sounds/degat_fermier.wav")
 const DEATH_SOUND = preload("res://sounds/mort_fermier.wav")
-const ITEM_TYPES = ["grenade", "tp", "nuke"]
+# Dix issues équiprobables : TP 30 %, grenade 20 %, nuke 10 %, rien 40 %.
+const ITEM_TYPES = ["tp", "tp", "tp", "grenade", "grenade", "nuke", "", "", "", ""]
 const WALK_ANIMATIONS = [
 	&"walk_right", &"walk_down_right", &"walk_down", &"walk_down_left",
 	&"walk_left", &"walk_up_left", &"walk_up", &"walk_up_right"
@@ -196,8 +197,11 @@ func attack(victim: Node2D) -> void:
 	is_attacking = false
 
 func drop_item() -> void:
+	var item_type: String = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
+	if item_type == "":
+		return
 	var item = ITEM_SCENE.instantiate()
-	item.item_type = forced_drop if forced_drop != "" else ITEM_TYPES.pick_random()
+	item.item_type = item_type
 
 	var world := get_tree().current_scene as Node2D
 

@@ -36,7 +36,6 @@ script = ExtResource("2_linpd")
 
 [node name="Timer" type="Timer" parent="Enemies" unique_id=1949904308]
 wait_time = 2.0
-autostart = true
 
 [node name="UI_en_sah" type="CanvasLayer" parent="." unique_id=322775224]
 layer = 2
@@ -49,6 +48,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_q6hbb")
+
+[node name="WaveStatus" type="Label" parent="UI_en_sah/HUD" unique_id=525019167]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 86.0
+offset_right = 260.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+horizontal_alignment = 1
 
 [node name="LowWeedMessage" type="Label" parent="UI_en_sah/HUD" unique_id=1276370576]
 visible = false
@@ -65,15 +79,14 @@ offset_right = 450.0
 offset_bottom = 48.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 72
 text = "need some weed !"
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 72
 
 [node name="Sang" type="TextureRect" parent="UI_en_sah/HUD" unique_id=1348476397]
 modulate = Color(1, 1, 1, 0)

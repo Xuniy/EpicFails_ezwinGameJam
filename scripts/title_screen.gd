@@ -1,5 +1,7 @@
 extends Node
 
+const START_SOUND := preload("res://sounds/join_full.wav")
+
 ## Gros plan d'introduction : le monde reste figé, seule la fumée est animée.
 @export var intro_zoom_multiplier: float = 4.0
 @export var dezoom_duration: float = 1.2
@@ -13,9 +15,12 @@ var camera: Camera2D
 var hud: CanvasLayer
 var smoke: AnimatedSprite2D
 @onready var start_screen: CanvasLayer = $StartScreen
+@onready var chicken_sound: AudioStreamPlayer = $StartScreen/BruitPoulet
 
 
 func _ready() -> void:
+	chicken_sound.stream.loop = true
+	chicken_sound.play()
 	var start_button: Button = start_screen.get_node("Root/Commencer")
 	start_button.pressed.connect(_start_game)
 	start_button.grab_focus()
@@ -69,6 +74,14 @@ func _start_game() -> void:
 	if _starting:
 		return
 	_starting = true
+	chicken_sound.stop()
+	var start_sound := AudioStreamPlayer.new()
+	start_sound.name = "SonCommencer"
+	start_sound.process_mode = Node.PROCESS_MODE_ALWAYS
+	start_sound.stream = START_SOUND
+	get_parent().add_child(start_sound)
+	start_sound.finished.connect(start_sound.queue_free)
+	start_sound.play()
 	start_screen.hide()
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

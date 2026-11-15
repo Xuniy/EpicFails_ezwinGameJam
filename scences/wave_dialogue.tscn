@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_dialogue.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scences/dialogue_box.tscn" id="2_box"]
+
+[node name="WaveDialogue" type="CanvasLayer"]
+process_mode = 3
+layer = 10
+script = ExtResource("1_script")
+
+[node name="Voice" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+
+[node name="Dialogue" parent="." instance=ExtResource("2_box")]

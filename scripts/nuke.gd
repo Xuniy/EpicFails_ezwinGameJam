@@ -4,6 +4,7 @@ const SOUND_EFFECT = preload("res://scripts/sound_effect.gd")
 const EXPLOSION_SOUND = preload("res://sounds/nuke_explosion.wav")
 
 @export var explosion_radius: float = 250.0
+@export var damage: float = 400.0
 @export var fall_height: float = 700.0
 @export var fall_time: float = 0.2
 
@@ -79,7 +80,7 @@ func explode() -> void:
 		if enemy.is_queued_for_deletion():
 			continue
 
-		enemy.take_damage(enemy.health)
+		enemy.take_damage(damage)
 
 	await explo.animation_finished
 	queue_free()

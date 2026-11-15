@@ -7,7 +7,7 @@ const THROW_SOUND = preload("res://sounds/throw_bruit.wav")
 @export_enum("grenade", "tp") var item_type: String = "grenade"
 @export var flight_time: float = 0.6
 @export var explosion_radius: float = 160.0
-@export var damage: float = 40.0
+@export var damage: float = 60.0
 
 var thrower: Node2D
 var start: Vector2

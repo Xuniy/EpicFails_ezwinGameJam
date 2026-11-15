@@ -1,8 +1,24 @@
 [gd_scene format=3 uid="uid://nmqtbqt14e7u"]
 
-[ext_resource type="Script" path="res://scences/ennemy_3.gd" id="1_m0ihg"]
+[ext_resource type="Script" uid="uid://ca1u6ybuu38y6" path="res://scripts/ennemy3.gd" id="1_m0ihg"]
 [ext_resource type="Texture2D" uid="uid://bnabcgkgsuvtn" path="res://assets/ombre.svg" id="2_wt06l"]
-[ext_resource type="Texture2D" path="res://assets/boss_saut_sheet_2rows.png" id="3_splpi"]
+[ext_resource type="Texture2D" uid="uid://c2evaj6rrtsw8" path="res://assets/boss_saut_sheet_2rows.png" id="3_splpi"]
+[ext_resource type="AudioStream" path="res://sounds/rire_lapin.wav" id="4_rire"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_background"]
+bg_color = Color(0.08, 0.025, 0.02, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.76, 0.38, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.85, 0.12, 0.12, 1)
+content_margin_left = 1.0
+content_margin_top = 1.0
+content_margin_right = 1.0
+content_margin_bottom = 1.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3oi8l"]
 radius = 40.0
@@ -109,6 +125,10 @@ animations = [{
 [node name="ennemy3" type="CharacterBody2D" unique_id=813012125]
 script = ExtResource("1_m0ihg")
 
+[node name="SonSaut" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_rire")
+volume_db = -6.0
+
 [node name="Ombre" type="Sprite2D" parent="." unique_id=1129084835]
 self_modulate = Color(1, 1, 1, 0.3)
 z_index = -2
@@ -133,3 +153,16 @@ texture_filter = 1
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_ihebq")
 animation = &"up_jump"
+
+[node name="HealthBar" type="ProgressBar" parent="AnimatedSprite2D"]
+z_index = 5
+offset_left = -24.0
+offset_top = -40.0
+offset_right = 24.0
+offset_bottom = -36.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_health_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+max_value = 10000.0
+value = 10000.0
+show_percentage = false

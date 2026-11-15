@@ -1,11 +1,30 @@
 [gd_scene format=3 uid="uid://2mo7jdkcofh1"]
 
-[ext_resource type="Texture2D" uid="uid://cqwpulymk7gwu" path="res://assets/eggceptional.png" id="1_title"]
-[ext_resource type="Texture2D" uid="uid://cc0pu5buaumui" path="res://assets/chicken_norris.png" id="2_name"]
+[ext_resource type="Script" uid="uid://b85wcsbd4ieu5" path="res://scripts/title_lettering.gd" id="1_lettering"]
+[ext_resource type="Shader" uid="uid://cvyvl8r16tqvq" path="res://shaders/title_gradient.gdshader" id="2_gradient"]
 [ext_resource type="Texture2D" uid="uid://cx1pnet6x5bvr" path="res://assets/buttons/button_a.png" id="3_6d4rj"]
+[ext_resource type="AudioStream" uid="uid://bh1nyt8ociklf" path="res://sounds/bruit_poulet.mp3" id="4_poulet"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_egg"]
+resource_local_to_scene = true
+shader = ExtResource("2_gradient")
+shader_parameter/top_color = Color(0.31409803, 0.38716364, 4.9093364e-06, 1)
+shader_parameter/bottom_color = Color(0.16, 0.66, 0.32, 1)
+shader_parameter/gradient_height = 181.10046
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_norris"]
+resource_local_to_scene = true
+shader = ExtResource("2_gradient")
+shader_parameter/top_color = Color(1, 0.97, 0.7, 1)
+shader_parameter/bottom_color = Color(1, 0.34, 0.08, 1)
+shader_parameter/gradient_height = 128.0
 
 [node name="StartScreen" type="CanvasLayer" unique_id=1634253596]
 layer = 20
+
+[node name="BruitPoulet" type="AudioStreamPlayer" parent="." unique_id=1818908174]
+process_mode = 3
+stream = ExtResource("4_poulet")
 
 [node name="Root" type="Control" parent="." unique_id=818325093]
 layout_mode = 3
@@ -18,24 +37,83 @@ mouse_filter = 2
 
 [node name="Dessins" type="Control" parent="Root" unique_id=16132724]
 layout_mode = 1
-anchor_left = 0.5
-anchor_top = 0.35
-anchor_right = 0.5
-anchor_bottom = 0.35
+anchor_left = 0.06
+anchor_top = 0.16
+anchor_right = 0.94
+anchor_bottom = 0.58
 mouse_filter = 2
 
-[node name="ChickenNorris" type="Sprite2D" parent="Root/Dessins" unique_id=918207730]
-texture_filter = 1
-position = Vector2(196, 161.20001)
-scale = Vector2(2, 2)
-texture = ExtResource("2_name")
+[node name="Eggceptionnal" type="Label" parent="Root/Dessins" unique_id=678255834]
+material = SubResource("ShaderMaterial_egg")
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.44
+offset_left = -202.12
+offset_top = 114.32001
+offset_right = -61.179565
+offset_bottom = 175.67007
+rotation = -0.29325867
+theme_override_colors/font_shadow_color = Color(0.01, 0.025, 0.015, 0.95)
+theme_override_colors/font_outline_color = Color(0.025, 0.07, 0.035, 1)
+theme_override_constants/shadow_offset_x = 5
+theme_override_constants/shadow_offset_y = 8
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 140
+text = "The eggceptionnal"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+script = ExtResource("1_lettering")
+maximum_font_size = 140
 
-[node name="eggceptionnal" type="Sprite2D" parent="Root/Dessins" unique_id=771805892]
-texture_filter = 1
-position = Vector2(-274, -60.800003)
-rotation = -0.31764993
-scale = Vector2(2, 2)
-texture = ExtResource("1_title")
+[node name="ChickeNorris" type="Label" parent="Root/Dessins" unique_id=1970648279]
+material = SubResource("ShaderMaterial_norris")
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.44
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 191.88
+offset_top = 136.56961
+offset_right = 191.88
+offset_bottom = 136.56961
+theme_override_colors/font_shadow_color = Color(0.025, 0.01, 0.005, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.035, 0.015, 1)
+theme_override_constants/shadow_offset_x = 7
+theme_override_constants/shadow_offset_y = 10
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 146
+text = "Chicke'Norris"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+script = ExtResource("1_lettering")
+maximum_font_size = 160
+
+[node name="ChickeNorris2" type="Label" parent="Root/Dessins" unique_id=320066718]
+material = SubResource("ShaderMaterial_norris")
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.44
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 444.88
+offset_top = 306.5696
+offset_right = 276.12
+offset_bottom = 282.16
+theme_override_colors/font_shadow_color = Color(0.025, 0.01, 0.005, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.035, 0.015, 1)
+theme_override_constants/shadow_offset_x = 7
+theme_override_constants/shadow_offset_y = 10
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+text = "Credits : EpicFails"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+script = ExtResource("1_lettering")
+maximum_font_size = 44
 
 [node name="Commencer" type="Button" parent="Root" unique_id=1849979459]
 layout_mode = 1
@@ -44,14 +122,14 @@ anchor_left = 0.5
 anchor_top = 0.75
 anchor_right = 0.5
 anchor_bottom = 0.75
-offset_left = -182.0
-offset_top = 27.0
-offset_right = 98.0
-offset_bottom = 91.0
+offset_left = -543.0
+offset_top = 25.0
+offset_right = -263.0
+offset_bottom = 89.0
 theme_override_font_sizes/font_size = 32
 text = "Commencer"
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=442351949]
-position = Vector2(653, 547)
+position = Vector2(290.99997, 544.99994)
 scale = Vector2(1.7, 1.7)
 texture = ExtResource("3_6d4rj")

@@ -9,15 +9,22 @@ const DIALOGUE_SCENE := preload("res://scences/dialogue_box.tscn")
 const TARGET_SCENE := preload("res://scences/tutorial_target.tscn")
 const ITEM_SCENE := preload("res://scences/item_au_sol.tscn")
 const REQUIRED_HITS: int = 3
+@export_range(-40.0, 12.0, 1.0) var voice_volume_db: float = 3.0
 const POULAILLER_CENTER := Vector2(-80.0, 140.0)
 const SAFE_RADIUS: float = 560.0
+const INSTRUCTION_VOICES := [
+	preload("res://sounds/dialogue1_linus.wav"),
+	preload("res://sounds/dialog2_linus.wav"),
+	preload("res://sounds/dialogue3_linus.wav"),
+	preload("res://sounds/dialog4_linus.wav"),
+]
 
 # Les textes restent regroupés ici ; la présentation reste dans dialogue_box.tscn.
 const INSTRUCTIONS := [
 	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nPC : vise à la souris et tire avec le clic gauche.\nManette : vise au stick droit et tire avec RT.\nDéplacement : ZQSD / WASD sur PC, stick gauche à la manette.",
-	"2/3 — Ramasse l’Egg Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
+	"2/3 — Ramasse l’Eggde Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
 	"3/3 — Réussis 3 notes pour apprendre à fumer.\nPC : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B.\nLes ratés ne remettent pas tes réussites à zéro.",
-	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : dégâts autour de l’impact. Nuke : élimine les ennemis dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
+	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 dégâts autour de l’impact. Nuke : 400 dégâts dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
 ]
 
 var step: Step = Step.SHOOT
@@ -33,6 +40,7 @@ var training_pearl: Area2D
 var dialogue_panel: Control
 var dialogue_label: Label
 var dialogue_hint: Label
+var dialogue_voice: AudioStreamPlayer
 var markers: OffscreenMarkers
 
 var _saved_items: Dictionary
@@ -80,6 +88,10 @@ func _ready() -> void:
 
 	player.teleport_finished.connect(_on_teleport_finished)
 	rhythm.hit_succeeded.connect(_on_rhythm_hit)
+	dialogue_voice = AudioStreamPlayer.new()
+	dialogue_voice.name = "DialogueVoice"
+	dialogue_voice.volume_db = voice_volume_db
+	add_child(dialogue_voice)
 	markers = OffscreenMarkers.new()
 	markers.process_mode = Node.PROCESS_MODE_PAUSABLE
 	markers.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -102,6 +114,9 @@ func _enter_explanation(next_step: Step) -> void:
 	dialogue_hint.text = "PC : Entrée / clic gauche · Manette : A"
 	dialogue_hint.show()
 	dialogue_panel.show()
+	dialogue_voice.stop()
+	dialogue_voice.stream = INSTRUCTION_VOICES[step]
+	dialogue_voice.play()
 
 
 func _input(event: InputEvent) -> void:
@@ -134,6 +149,7 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		confirm = event.pressed and event.button_index == MOUSE_BUTTON_LEFT
 	if confirm:
+		dialogue_voice.stop()
 		phase = Phase.WAIT_RELEASE
 		_confirm_held = true
 		dialogue_hint.text = "Relâche les boutons pour commencer."
@@ -310,6 +326,8 @@ func _finish() -> void:
 	phase = Phase.DONE
 	_restore_runtime()
 	joint.amount = 1.0
+	if is_instance_valid(enemies_root) and enemies_root.has_method("start_campaign"):
+		enemies_root.start_campaign()
 	queue_free()
 
 
@@ -317,6 +335,8 @@ func _restore_runtime() -> void:
 	if _cleaned_up:
 		return
 	_cleaned_up = true
+	if is_instance_valid(dialogue_voice):
+		dialogue_voice.stop()
 	phase = Phase.DONE
 	if is_instance_valid(player):
 		player.items = _saved_items.duplicate()
