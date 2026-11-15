@@ -7,7 +7,7 @@ extends Control
 
 const SLOT_TEXTURE: Texture2D = preload("res://assets/Inventory_Slot_1.png")
 const SLOT_SIZE: float = 52.0
-const SELECTED_SCALE: float = 1.8
+const SELECTED_SCALE: float = 2.2
 const SLOT_GAP: float = 10.0
 const BOTTOM_MARGIN: float = 12.0
 # Zone intérieure de la case : le contour occupe les bords (32 px -> 8 px de marge).
@@ -71,7 +71,8 @@ func _draw() -> void:
 
 		var quantity: int = player.items.get(item_type, 0)
 		# Pas de transparence : un item épuisé est seulement grisé.
-		var tint: Color = Color.WHITE if quantity > 0 else EMPTY_TINT
+		# Le centre reste toujours en couleur pleine ; les autres sont grisés si épuisés.
+		var tint: Color = Color.WHITE if (is_selected or quantity > 0) else EMPTY_TINT
 
 		draw_texture_rect(SLOT_TEXTURE, rect, false)
 
