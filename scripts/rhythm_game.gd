@@ -3,7 +3,8 @@ extends Control
 
 ## Mini-jeu de rythme pour fumer : une seule ligne horizontale. Les boutons arrivent
 ## vers la cible ; une bonne touche au bon moment ajoute 5 s au joint (plafonné à sa durée).
-## Une mauvaise touche ne fait rien. Démarré par la croix haut quand le joint n'est pas plein.
+## Une mauvaise touche ne fait rien. Démarré par la croix haut (manette) ou la touche A (clavier) quand le joint n'est pas plein.
+## Voies au clavier : touches 1 2 3 4. Affichage manette ou clavier selon le dernier appareil branché.
 
 class NoteData:
 	var lane: int
@@ -22,6 +23,9 @@ const BUTTON_TEXTURES := [
 # Ordre des voies : Y, X, A, B (chaque note est un de ces boutons).
 const LANE_BUTTONS := [JOY_BUTTON_Y, JOY_BUTTON_X, JOY_BUTTON_A, JOY_BUTTON_B]
 const START_BUTTON: int = JOY_BUTTON_DPAD_UP
+const START_KEY: Key = KEY_A
+const KEY_LANES := [KEY_1, KEY_2, KEY_3, KEY_4]
+const KEY_LABELS := ["1", "2", "3", "4"]
 const NOTE_COUNT: int = 16
 const NOTE_STEP: float = 0.6
 const START_DELAY: float = 1.5
@@ -41,11 +45,13 @@ var notes: Array = []
 var amount_at_start: float = 0.0
 var result_timer: float = 0.0
 var result_text: String = ""
+var using_gamepad: bool = false
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	using_gamepad = not Input.get_connected_joypads().is_empty()
 	visible = false
 
 
@@ -65,20 +71,34 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventJoypadButton) or not event.pressed:
+	var is_start := false
+	var lane := -1
+	if event is InputEventJoypadButton:
+		var pad := event as InputEventJoypadButton
+		if not pad.pressed:
+			return
+		using_gamepad = true
+		is_start = pad.button_index == START_BUTTON
+		lane = LANE_BUTTONS.find(pad.button_index)
+	elif event is InputEventKey:
+		var key := event as InputEventKey
+		if not key.pressed or key.echo:
+			return
+		using_gamepad = false
+		is_start = key.keycode == START_KEY
+		lane = KEY_LANES.find(key.keycode)
+	else:
 		return
 
 	if active:
 		# La même touche que pour l'ouvrir ferme le mini-jeu.
-		if event.button_index == START_BUTTON:
+		if is_start:
 			_close()
 			get_viewport().set_input_as_handled()
-			return
-		var lane: int = LANE_BUTTONS.find(event.button_index)
-		if lane != -1:
+		elif lane != -1:
 			_try_hit(lane)
 			get_viewport().set_input_as_handled()
-	elif event.button_index == START_BUTTON and joint and joint.amount < 1.0:
+	elif is_start and joint and joint.amount < 1.0:
 		_start()
 		get_viewport().set_input_as_handled()
 
@@ -135,6 +155,13 @@ func _finish() -> void:
 	result_timer = RESULT_DURATION
 
 
+# Touche clavier dessinée dans un petit carré, à la place de l'icône manette.
+func _draw_key_label(rect: Rect2, label: String, font: Font) -> void:
+	draw_rect(rect, Color(0, 0, 0, 0.85))
+	draw_rect(rect, Color.WHITE, false, 2.0)
+	draw_string(font, Vector2(rect.position.x, rect.position.y + rect.size.y * 0.5 + FONT_SIZE * 0.35), label, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, FONT_SIZE, Color.WHITE)
+
+
 func _draw() -> void:
 	var font: Font = get_theme_default_font()
 	var panel := Rect2(Vector2.ZERO, size)
@@ -163,11 +190,11 @@ func _draw() -> void:
 			var x: float = TARGET_X + (note.time - song_time) * NOTE_SPEED
 			if x < -icon or x > size.x + icon:
 				continue
-			draw_texture_rect(
-				BUTTON_TEXTURES[note.lane],
-				Rect2(x - icon * 0.5, line_y - icon * 0.5, icon, icon),
-				false
-			)
+			var rect := Rect2(x - icon * 0.5, line_y - icon * 0.5, icon, icon)
+			if using_gamepad:
+				draw_texture_rect(BUTTON_TEXTURES[note.lane], rect, false)
+			else:
+				_draw_key_label(rect, KEY_LABELS[note.lane], font)
 
 	elif result_timer > 0.0:
 		draw_rect(panel, Color(0, 0, 0, 0.75))
