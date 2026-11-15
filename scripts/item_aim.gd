@@ -13,7 +13,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	visible = Input.is_action_pressed("use_item")
+	visible = get_parent().is_item_aiming()
 
 	if not visible:
 		distance = 0.0

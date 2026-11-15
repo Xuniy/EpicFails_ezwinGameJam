@@ -67,14 +67,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		var joy := event as InputEventJoypadMotion
 		if joy.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y] and absf(joy.axis_value) > 0.2:
 			mouse_aim_active = false
-	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
-		var button := (event as InputEventMouseButton).button_index
-		if button == MOUSE_BUTTON_WHEEL_UP and not aiming_item:
+	elif event is InputEventMouseButton:
+		var click := event as InputEventMouseButton
+		# Cliquer suffit à viser au curseur, même sans avoir bougé la souris.
+		if click.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
+			mouse_aim_active = true
+		if click.pressed and click.button_index == MOUSE_BUTTON_WHEEL_UP and not aiming_item:
 			cycle_item(-1)
-		elif button == MOUSE_BUTTON_WHEEL_DOWN and not aiming_item:
+		elif click.pressed and click.button_index == MOUSE_BUTTON_WHEEL_DOWN and not aiming_item:
 			cycle_item(1)
-		elif button == MOUSE_BUTTON_RIGHT:
-			throw_at_mouse()
+		elif click.button_index == MOUSE_BUTTON_RIGHT:
+			if click.pressed:
+				start_mouse_throw()
+			else:
+				release_mouse_throw()
 		return
 
 	# Maintenir pour viser.
@@ -135,14 +141,27 @@ func cycle_item(step: int) -> void:
 	selected_index = posmod(selected_index + step, item_order.size())
 
 
-# Lancer vers le curseur, limité à la portée de l'item.
-func throw_at_mouse() -> void:
+# Clic droit maintenu : l'arc suit la souris ; relâché : l'item est lancé.
+var mouse_throw_item: String = ""
+
+
+func is_item_aiming() -> bool:
+	return Input.is_action_pressed("use_item") or mouse_throw_item != ""
+
+
+func start_mouse_throw() -> void:
 	if items[selected_item] <= 0:
 		print("Aucun exemplaire de : ", selected_item)
 		return
-	var origin := item_aim.global_position
-	var offset := get_global_mouse_position() - origin
-	use_item_at(selected_item, origin + offset.limit_length(item_aim.max_distance))
+	mouse_throw_item = selected_item
+
+
+func release_mouse_throw() -> void:
+	if mouse_throw_item == "":
+		return
+	var item := mouse_throw_item
+	mouse_throw_item = ""
+	use_item_at(item, item_aim.global_position + item_aim.aim_direction * item_aim.distance)
 
 
 func _on_enemy_entered(body: Node2D) -> void:
