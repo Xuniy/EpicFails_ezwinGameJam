@@ -2,13 +2,14 @@ extends Control
 
 ## Écran d'accueil : nom du jeu et Play. Le type d'appareil est mémorisé dans GameState :
 ## un clic (ou une touche) = clavier/souris, le bouton A d'une manette = Xbox.
+## Le bouton A lance directement la partie, sans dépendre du focus du bouton.
 
-const NEXT_SCENE := "res://scences/tutorial_screen.tscn"
 const TITLE_FONT_SIZE: int = 56
 const BUTTON_FONT_SIZE: int = 32
 
 var detected_device: String = ""
 var play_button: Button
+var _starting: bool = false
 
 
 func _ready() -> void:
@@ -45,6 +46,9 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
 		detected_device = GameState.DEVICE_XBOX
+		if (event as InputEventJoypadButton).button_index == JOY_BUTTON_A:
+			get_viewport().set_input_as_handled()
+			_on_play_pressed()
 	elif event is InputEventKey and (event as InputEventKey).pressed:
 		detected_device = GameState.DEVICE_KEYBOARD_MOUSE
 	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
@@ -52,6 +56,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_play_pressed() -> void:
+	if _starting:
+		return
+	_starting = true
 	GameState.input_device = detected_device if detected_device != "" else GameState.DEVICE_KEYBOARD_MOUSE
-	GameState.game_over = false
-	get_tree().change_scene_to_file(NEXT_SCENE)
+	GameState.start_game(true)

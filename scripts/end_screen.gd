@@ -52,6 +52,12 @@ func _ready() -> void:
 	again.grab_focus()
 
 
+func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed and (event as InputEventJoypadButton).button_index == JOY_BUTTON_A:
+		get_viewport().set_input_as_handled()
+		_on_play_again()
+
+
 func _on_play_again() -> void:
 	GameState.game_over = false
 	get_tree().paused = false
