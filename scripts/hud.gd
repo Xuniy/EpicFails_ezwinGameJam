@@ -84,6 +84,7 @@ func _update_empty_joint_damage(delta: float) -> void:
 	if _empty_joint_timer >= EMPTY_JOINT_INTERVAL:
 		_empty_joint_timer -= EMPTY_JOINT_INTERVAL
 		player.take_damage(EMPTY_JOINT_DAMAGE, false)
+		show_damage_overlay()
 
 # Joint en bas à gauche, vie du joueur en bas à droite.
 func _layout_hud() -> void:

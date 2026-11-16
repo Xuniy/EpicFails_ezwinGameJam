@@ -1,10 +1,21 @@
-[gd_scene format=3 uid="uid://bnixiwg4up0xs"]
+[gd_scene format=3 uid="uid://c3e3jumywyyc2"]
 
 [ext_resource type="PackedScene" uid="uid://drgxk1hcaiiq3" path="res://scences/world_test.tscn" id="1_world"]
 [ext_resource type="Script" uid="uid://bqmwukmh36656" path="res://scripts/title_screen.gd" id="2_intro"]
 [ext_resource type="PackedScene" uid="uid://2mo7jdkcofh1" path="res://scences/debut.tscn" id="3_start"]
 
 [node name="TitleScreen" unique_id=1614548159 instance=ExtResource("1_world")]
+
+[node name="WaveStatus" parent="UI_en_sah/HUD" parent_id_path=PackedInt32Array(1396388679) index="0" unique_id=525019167]
+anchors_preset = 10
+anchor_left = 0.0
+anchor_right = 1.0
+offset_left = 0.0
+offset_top = 55.0
+offset_right = 0.0
+offset_bottom = 89.0
+theme_override_font_sizes/font_size = 32
+vertical_alignment = 1
 
 [node name="Intro" type="Node" parent="." index="6" unique_id=1665544413]
 process_mode = 3
