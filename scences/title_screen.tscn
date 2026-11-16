@@ -1,13 +1,13 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bnixiwg4up0xs"]
 
-[ext_resource type="PackedScene" path="res://scences/world_test.tscn" id="1_world"]
-[ext_resource type="Script" path="res://scripts/title_screen.gd" id="2_intro"]
-[ext_resource type="PackedScene" path="res://scences/debut.tscn" id="3_start"]
+[ext_resource type="PackedScene" uid="uid://drgxk1hcaiiq3" path="res://scences/world_test.tscn" id="1_world"]
+[ext_resource type="Script" uid="uid://bqmwukmh36656" path="res://scripts/title_screen.gd" id="2_intro"]
+[ext_resource type="PackedScene" uid="uid://2mo7jdkcofh1" path="res://scences/debut.tscn" id="3_start"]
 
-[node name="TitleScreen" instance=ExtResource("1_world")]
+[node name="TitleScreen" unique_id=1614548159 instance=ExtResource("1_world")]
 
-[node name="Intro" type="Node" parent="."]
+[node name="Intro" type="Node" parent="." index="6" unique_id=1665544413]
 process_mode = 3
 script = ExtResource("2_intro")
 
-[node name="StartScreen" parent="Intro" instance=ExtResource("3_start")]
+[node name="StartScreen" parent="Intro" index="0" unique_id=1937521017 instance=ExtResource("3_start")]

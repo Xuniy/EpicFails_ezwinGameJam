@@ -14,7 +14,7 @@ const ITEM_TYPES = ["grenade", "tp", "nuke"]
 
 enum State { IDLE, JUMPING }
 
-@export var max_health: float = 5000.0
+@export var max_health: float = 2000.0
 @export var damage: float = 25.0                  ## dégâts infligés à chaque atterrissage
 @export var max_jump_distance: float = 450.0      ## distance max parcourue par saut (px)
 @export var jump_height: float = 160.0            ## hauteur visuelle du saut (px)

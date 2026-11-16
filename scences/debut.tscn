@@ -10,7 +10,7 @@ resource_local_to_scene = true
 shader = ExtResource("2_gradient")
 shader_parameter/top_color = Color(0.31409803, 0.38716364, 4.9093364e-06, 1)
 shader_parameter/bottom_color = Color(0.16, 0.66, 0.32, 1)
-shader_parameter/gradient_height = 181.10046
+shader_parameter/gradient_height = 155.00002
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_norris"]
 resource_local_to_scene = true
@@ -43,23 +43,28 @@ anchor_right = 0.94
 anchor_bottom = 0.58
 mouse_filter = 2
 
+[node name="Sprite2D" type="Sprite2D" parent="Root/Dessins" unique_id=442351949]
+position = Vector2(221.87997, 441.31995)
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("3_6d4rj")
+
 [node name="Eggceptionnal" type="Label" parent="Root/Dessins" unique_id=678255834]
 material = SubResource("ShaderMaterial_egg")
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.44
-offset_left = -202.12
-offset_top = 114.32001
-offset_right = -61.179565
-offset_bottom = 175.67007
+offset_left = -97.119995
+offset_top = 86.31999
+offset_right = -326.15247
+offset_bottom = 121.5696
 rotation = -0.29325867
 theme_override_colors/font_shadow_color = Color(0.01, 0.025, 0.015, 0.95)
 theme_override_colors/font_outline_color = Color(0.025, 0.07, 0.035, 1)
 theme_override_constants/shadow_offset_x = 5
 theme_override_constants/shadow_offset_y = 8
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 140
+theme_override_font_sizes/font_size = 104
 text = "The eggceptionnal"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -74,16 +79,16 @@ anchors_preset = -1
 anchor_top = 0.44
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 191.88
-offset_top = 136.56961
-offset_right = 191.88
-offset_bottom = 136.56961
+offset_left = 153.88
+offset_top = 157.56961
+offset_right = 122.880005
+offset_bottom = 224.16
 theme_override_colors/font_shadow_color = Color(0.025, 0.01, 0.005, 1)
 theme_override_colors/font_outline_color = Color(0.12, 0.035, 0.015, 1)
 theme_override_constants/shadow_offset_x = 7
 theme_override_constants/shadow_offset_y = 10
 theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 146
+theme_override_font_sizes/font_size = 160
 text = "Chicke'Norris"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -115,7 +120,8 @@ clip_text = true
 script = ExtResource("1_lettering")
 maximum_font_size = 44
 
-[node name="Commencer" type="Button" parent="Root" unique_id=1849979459]
+[node name="Commencer" type="Button" parent="Root/Dessins" unique_id=1849979459]
+z_index = -1
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
@@ -123,13 +129,8 @@ anchor_top = 0.75
 anchor_right = 0.5
 anchor_bottom = 0.75
 offset_left = -543.0
-offset_top = 25.0
+offset_top = 203.20001
 offset_right = -263.0
-offset_bottom = 89.0
+offset_bottom = 267.2
 theme_override_font_sizes/font_size = 32
 text = "Commencer"
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=442351949]
-position = Vector2(290.99997, 544.99994)
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("3_6d4rj")

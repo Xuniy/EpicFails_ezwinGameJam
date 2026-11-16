@@ -21,7 +21,7 @@ var smoke: AnimatedSprite2D
 func _ready() -> void:
 	chicken_sound.stream.loop = true
 	chicken_sound.play()
-	var start_button: Button = start_screen.get_node("Root/Commencer")
+	var start_button: Button = start_screen.get_node("Root/Dessins/Commencer")
 	start_button.pressed.connect(_start_game)
 	start_button.grab_focus()
 	var world := get_parent()
