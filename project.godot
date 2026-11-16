@@ -26,7 +26,7 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom_font="res://assets/fonts/fibberish.ttf"
+theme/custom_font="res://assets/fonts/police_jeu.tres"
 theme/default_font_size=24
 
 [input]
