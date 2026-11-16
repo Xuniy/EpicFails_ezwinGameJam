@@ -21,10 +21,10 @@ const INSTRUCTION_VOICES := [
 
 # Les textes restent regroupes ici ; la presentation reste dans dialogue_box.tscn.
 const INSTRUCTIONS := [
-	"1/3 — Protege le poulailler ! Entraine-toi sur une cible.\nPC : vise à la souris et tire avec le clic gauche.\nManette : vise au stick droit et tire avec RT.\nDeplacement : ZQSD / WASD sur PC, stick gauche à la manette.",
-	"2/3 — Ramasse l’Eggde Pearl au sol devant toi, puis selectionne-la pour te teleporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour reessayer.",
-	"3/3 — Reussis 3 notes pour apprendre à fumer.\nPC : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B.\nLes rates ne remettent pas tes reussites à zero.",
-	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 degâts autour de l’impact. Nuke : 400 degâts dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
+	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nPC : vise à la souris et tire avec le clic gauche.\nManette : vise au stick droit et tire avec RT.\nDéplacement : ZQSD / WASD sur PC, stick gauche à la manette.",
+	"2/3 — Ramasse l’Eggder Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
+	"3/3 — Réussis 3 notes pour apprendre à fumer.\nPC : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B.\nLes ratés ne remettent pas tes réussites à zero.",
+	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 dégâts autour de l’impact. Nuke : 400 dégâts dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
 ]
 
 var step: Step = Step.SHOOT
@@ -111,7 +111,7 @@ func _enter_explanation(next_step: Step) -> void:
 	get_tree().paused = true
 	rhythm._close()
 	dialogue_label.text = INSTRUCTIONS[step]
-	dialogue_hint.text = "PC : Entree / clic gauche · Manette : A"
+	dialogue_hint.text = "PC : Entrée / clic gauche · Manette : A"
 	dialogue_hint.show()
 	dialogue_panel.show()
 	dialogue_voice.stop()
@@ -171,7 +171,7 @@ func _process(_delta: float) -> void:
 			_enter_explanation((int(step) + 1) as Step)
 		Phase.ACTION:
 			if step == Step.TELEPORT:
-				dialogue_hint.text = "Objectif : reussis une teleportation." if player.items["tp"] > 0 else "Objectif : avance sur l’Egg Pearl pour la ramasser."
+				dialogue_hint.text = "Objectif : réussis une téléportation." if player.items["tp"] > 0 else "Objectif : avance sur l’Eggder Pearl pour la ramasser."
 
 
 func _controls_released() -> bool:
@@ -206,15 +206,15 @@ func _activate_action() -> void:
 	match step:
 		Step.SHOOT:
 			_spawn_target()
-			dialogue_hint.text = "Objectif : elimine la cible."
+			dialogue_hint.text = "Objectif : élimine la cible."
 		Step.TELEPORT:
 			player.selected_index = player.item_order.find("grenade")
 			_spawn_pearl()
-			dialogue_hint.text = "Objectif : avance sur l’Egg Pearl pour la ramasser."
+			dialogue_hint.text = "Objectif : avance sur l’Eggder Pearl pour la ramasser."
 		Step.SMOKE:
 			joint.amount = 0.2
 			successful_hits = 0
-			dialogue_hint.text = "Reussites : 0 / 3"
+			dialogue_hint.text = "Réussites : 0 / 3"
 	get_tree().paused = false
 
 
@@ -308,7 +308,7 @@ func _on_rhythm_hit() -> void:
 	if phase != Phase.ACTION or step != Step.SMOKE:
 		return
 	successful_hits += 1
-	dialogue_hint.text = "Reussites : %d / %d" % [successful_hits, REQUIRED_HITS]
+	dialogue_hint.text = "Réussites : %d / %d" % [successful_hits, REQUIRED_HITS]
 	if successful_hits >= REQUIRED_HITS:
 		_complete_action()
 
