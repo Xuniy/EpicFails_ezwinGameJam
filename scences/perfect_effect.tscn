@@ -1,17 +1,17 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dnqspdl2npp04"]
 
-[ext_resource type="Shader" path="res://shaders/perfect_effect.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://dwvi1xswnga5v" path="res://shaders/perfect_effect.gdshader" id="1_shader"]
 
 [sub_resource type="ShaderMaterial" id="Material_perfect"]
 resource_local_to_scene = true
 shader = ExtResource("1_shader")
 shader_parameter/intensity = 0.0
+shader_parameter/effect_time = -1.0
 
-[node name="PerfectEffect" type="CanvasLayer"]
-layer = 1
+[node name="PerfectEffect" type="CanvasLayer" unique_id=1989081980]
 visible = false
 
-[node name="Distortion" type="ColorRect" parent="."]
+[node name="Distortion" type="ColorRect" parent="." unique_id=1936244106]
 material = SubResource("Material_perfect")
 anchors_preset = 15
 anchor_right = 1.0

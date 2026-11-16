@@ -23,6 +23,9 @@ GameState="*res://scripts/game_state.gd"
 window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/size/mode.web=0
+window/size/viewport_width.web=1920
+window/size/viewport_height.web=1080
 
 [gui]
 
