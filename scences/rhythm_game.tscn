@@ -1,30 +1,32 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://crabewp5gr51b"]
 
-[ext_resource type="Script" path="res://scripts/rhythm_game.gd" id="1_rhythm"]
-[ext_resource type="Texture2D" path="res://assets/deco_jeu_joint.png" id="2_frame"]
-[ext_resource type="AudioStream" path="res://sounds/inspire_bien.wav" id="3_success"]
-[ext_resource type="AudioStream" path="res://sounds/join_full.wav" id="4_full"]
+[ext_resource type="Script" uid="uid://bvapxdxh0cnnv" path="res://scripts/rhythm_game.gd" id="1_rhythm"]
+[ext_resource type="Texture2D" uid="uid://cchb26831qmxx" path="res://assets/deco_jeu_joint.png" id="2_frame"]
+[ext_resource type="AudioStream" uid="uid://cy0l6krgfqys0" path="res://sounds/inspire_bien.wav" id="3_success"]
+[ext_resource type="AudioStream" uid="uid://c10814rjn3rj4" path="res://sounds/join_full.wav" id="4_full"]
 
-[node name="RhythmGame" type="Control"]
+[node name="RhythmGame" type="Control" unique_id=611804089]
+texture_filter = 1
 layout_mode = 3
+anchors_preset = 0
 offset_right = 420.0
 offset_bottom = 70.0
 mouse_filter = 2
-texture_filter = 1
 script = ExtResource("1_rhythm")
+note_count = 16
 
-[node name="Encadrement" type="Sprite2D" parent="."]
+[node name="Encadrement" type="Sprite2D" parent="." unique_id=289273034]
 z_index = 1
 texture_filter = 1
 scale = Vector2(4.117647, 2.5)
 texture = ExtResource("2_frame")
 centered = false
 
-[node name="Cible" type="Marker2D" parent="."]
+[node name="Cible" type="Marker2D" parent="." unique_id=1476247131]
 position = Vector2(90, 35)
 
-[node name="SonJoint" type="AudioStreamPlayer" parent="."]
+[node name="SonJoint" type="AudioStreamPlayer" parent="." unique_id=1923719844]
 stream = ExtResource("3_success")
 
-[node name="SonJointPlein" type="AudioStreamPlayer" parent="."]
+[node name="SonJointPlein" type="AudioStreamPlayer" parent="." unique_id=344567241]
 stream = ExtResource("4_full")

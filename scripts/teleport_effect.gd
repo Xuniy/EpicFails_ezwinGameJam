@@ -18,7 +18,7 @@ func setup(origin: Vector2, destination: Vector2, sprite: AnimatedSprite2D) -> v
 		ghost.flip_h = sprite.flip_h
 		ghost.flip_v = sprite.flip_v
 		ghost.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		ghost.self_modulate = Color(0.45, 0.9, 1.0, lerpf(0.2, 0.6, progress))
+		ghost.self_modulate = Color(1.0, 1.0, 1.0, lerpf(0.2, 0.6, progress))
 		add_child(ghost)
 		ghost.global_transform = sprite.global_transform
 		ghost.global_position += origin.lerp(destination, progress) - destination
