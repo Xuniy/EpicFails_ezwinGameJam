@@ -21,10 +21,16 @@ const INSTRUCTION_VOICES := [
 
 # Les textes restent regroupes ici ; la presentation reste dans dialogue_box.tscn.
 const INSTRUCTIONS := [
-	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nPC : vise à la souris et tire avec le clic gauche.\nManette : vise au stick droit et tire avec RT.\nDéplacement : ZQSD / WASD sur PC, stick gauche à la manette.",
-	"2/3 — Ramasse l’Eggder Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nPC : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les clics / gâchettes pour réessayer.",
-	"3/3 — Réussis 3 notes pour apprendre à fumer.\nPC : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B.\nLes ratés ne remettent pas tes réussites à zero.",
-	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 dégâts autour de l’impact. Nuke : 400 dégâts dans sa zone.\nPC : molette, clic droit pour viser puis clic gauche.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
+	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nClavier / souris : vise à la souris et tire avec le clic gauche.\nDéplacement : ZQSD / WASD.",
+	"2/3 — Ramasse l’Eggder Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nClavier / souris : molette pour choisir, maintiens clic droit, vise à la souris puis clic gauche.\nRelâche les clics pour réessayer.",
+	"3/3 — Réussis 3 notes pour apprendre à fumer.\nClavier : A ouvre le mini-jeu ; utilise 1, 2, 3, 4 au bon moment.\nLes ratés ne remettent pas tes réussites à zéro.",
+	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 dégâts autour de l’impact. Nuke : 400 dégâts dans sa zone.\nClavier / souris : molette, clic droit pour viser puis clic gauche.\nGarde ton joint rempli pour ne pas perdre de vie."
+]
+const GAMEPAD_INSTRUCTIONS := [
+	"1/3 — Protège le poulailler ! Entraîne-toi sur une cible.\nManette : vise au stick droit et tire avec RT.\nDéplacement : stick gauche.",
+	"2/3 — Ramasse l’Eggder Pearl au sol devant toi, puis sélectionne-la pour te téléporter.\nManette : LB/RB pour choisir, maintiens LT, vise au stick droit puis RT.\nRelâche les gâchettes pour réessayer.",
+	"3/3 — Réussis 3 notes pour apprendre à fumer.\nManette : croix haut ouvre le mini-jeu ; utilise Y, X, A, B au bon moment.\nLes ratés ne remettent pas tes réussites à zéro.",
+	"Tu es prêt ! Protège ta vie et celle du poulailler.\nGrenade : 60 dégâts autour de l’impact. Nuke : 400 dégâts dans sa zone.\nManette : LB/RB, LT pour viser puis RT.\nGarde ton joint rempli pour ne pas perdre de vie."
 ]
 
 var step: Step = Step.SHOOT
@@ -110,8 +116,7 @@ func _enter_explanation(next_step: Step) -> void:
 	_confirm_held = true
 	get_tree().paused = true
 	rhythm._close()
-	dialogue_label.text = INSTRUCTIONS[step]
-	dialogue_hint.text = "PC : Entrée / clic gauche · Manette : A"
+	_refresh_instruction_text()
 	dialogue_hint.show()
 	dialogue_panel.show()
 	dialogue_voice.stop()
@@ -119,7 +124,38 @@ func _enter_explanation(next_step: Step) -> void:
 	dialogue_voice.play()
 
 
+func _refresh_instruction_text() -> void:
+	var gamepad: bool = GameState.input_device == GameState.DEVICE_XBOX
+	dialogue_label.text = GAMEPAD_INSTRUCTIONS[step] if gamepad else INSTRUCTIONS[step]
+	rhythm.using_gamepad = gamepad
+	rhythm.queue_redraw()
+	if phase == Phase.EXPLANATION:
+		dialogue_hint.text = "Manette : A pour continuer" if gamepad else "Clavier / souris : Clic Gauche pour continuer"
+
+
+func _update_input_device(event: InputEvent) -> void:
+	var device: String = GameState.input_device
+	if event is InputEventJoypadButton and event.pressed:
+		device = GameState.DEVICE_XBOX
+	elif event is InputEventJoypadMotion:
+		# Une gâchette relâchée et la dérive des sticks ne changent pas les consignes.
+		var is_trigger: bool = event.axis in [JOY_AXIS_TRIGGER_LEFT, JOY_AXIS_TRIGGER_RIGHT]
+		if (is_trigger and event.axis_value > 0.25) or (not is_trigger and absf(event.axis_value) > 0.25):
+			device = GameState.DEVICE_XBOX
+	elif event is InputEventKey and event.pressed and not event.echo:
+		device = GameState.DEVICE_KEYBOARD_MOUSE
+	elif event is InputEventMouseButton and event.pressed:
+		device = GameState.DEVICE_KEYBOARD_MOUSE
+	elif event is InputEventMouseMotion and event.relative.length_squared() >= 1.0:
+		device = GameState.DEVICE_KEYBOARD_MOUSE
+	if device != GameState.input_device:
+		GameState.input_device = device
+		_refresh_instruction_text()
+
+
 func _input(event: InputEvent) -> void:
+	if phase != Phase.DONE:
+		_update_input_device(event)
 	var confirmation_id := ""
 	if event is InputEventKey and event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
 		confirmation_id = "key_%d" % event.keycode
@@ -202,7 +238,7 @@ func _activate_action() -> void:
 	player._left_was_down = false
 	player._left_consumed = false
 	player._throw_zoom_active = false
-	dialogue_label.text = INSTRUCTIONS[step]
+	_refresh_instruction_text()
 	match step:
 		Step.SHOOT:
 			_spawn_target()
