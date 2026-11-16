@@ -10,6 +10,13 @@ const WORLD_SCENE := "res://scences/world_test.tscn"
 var input_device: String = DEVICE_KEYBOARD_MOUSE
 var game_over: bool = false
 var show_tutorial: bool = false
+var pause_menu: CanvasLayer
+
+
+func _ready() -> void:
+	# Menu pause unique, enfant de l'autoload : il reste actif d'une scène à l'autre.
+	pause_menu = preload("res://scripts/pause_menu.gd").new()
+	add_child(pause_menu)
 
 
 func start_game(with_tutorial: bool) -> void:

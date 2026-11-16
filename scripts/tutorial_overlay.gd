@@ -9,6 +9,8 @@ const DIALOGUE_SCENE := preload("res://scences/dialogue_box.tscn")
 const TARGET_SCENE := preload("res://scences/tutorial_target.tscn")
 const ITEM_SCENE := preload("res://scences/item_au_sol.tscn")
 const REQUIRED_HITS: int = 3
+## Passer le tutoriel : maintenir Tab (clavier) ou View (manette, bouton à gauche du logo Xbox).
+const SKIP_HOLD_TIME: float = 1.0
 @export_range(-40.0, 12.0, 1.0) var voice_volume_db: float = 3.0
 const POULAILLER_CENTER := Vector2(-80.0, 140.0)
 const SAFE_RADIUS: float = 560.0
@@ -57,6 +59,11 @@ var _spawner_was_running: bool
 var _cleaned_up: bool = false
 var _confirm_held: bool = true
 var _held_confirmation_inputs: Dictionary = {}
+var _skip_hold: float = 0.0
+var _skip_label: Label
+var _skip_icon: TextureRect
+var _skip_label_end: Label
+var _skip_bar: ProgressBar
 
 
 func _ready() -> void:
@@ -107,7 +114,73 @@ func _ready() -> void:
 	dialogue_label = dialogue_panel.get_node("Box/Text")
 	dialogue_hint = dialogue_panel.get_node("Box/Hint")
 	dialogue_panel.get_node("Box/ObjectiveIcon").hide()
+	_build_skip_hint()
 	_enter_explanation(Step.SHOOT)
+
+
+func _build_skip_hint() -> void:
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	box.offset_left = -360.0
+	box.offset_right = -16.0
+	box.offset_top = 16.0
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(box)
+	# Ligne « Maintiens [Tab | icône View] pour passer le tutoriel ».
+	var line := HBoxContainer.new()
+	line.alignment = BoxContainer.ALIGNMENT_END
+	line.add_theme_constant_override("separation", 6)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.modulate = Color(1, 1, 1, 0.85)
+	box.add_child(line)
+	_skip_label = Label.new()
+	_skip_label.add_theme_font_size_override("font_size", 18)
+	line.add_child(_skip_label)
+	_skip_icon = TextureRect.new()
+	_skip_icon.texture = load("res://assets/buttons/button_view.png")
+	_skip_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_skip_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_skip_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_skip_icon.custom_minimum_size = Vector2(28, 28)
+	line.add_child(_skip_icon)
+	_skip_label_end = Label.new()
+	_skip_label_end.text = "pour passer le tutoriel"
+	_skip_label_end.add_theme_font_size_override("font_size", 18)
+	line.add_child(_skip_label_end)
+	_skip_bar = ProgressBar.new()
+	_skip_bar.max_value = SKIP_HOLD_TIME
+	_skip_bar.show_percentage = false
+	_skip_bar.custom_minimum_size = Vector2(0, 6)
+	_skip_bar.modulate = Color(1, 1, 1, 0.0)
+	box.add_child(_skip_bar)
+	_refresh_skip_text()
+
+
+func _refresh_skip_text() -> void:
+	if _skip_label == null:
+		return
+	var gamepad: bool = GameState.input_device == GameState.DEVICE_XBOX
+	# Manette : l'icône du bouton View remplace le mot ; clavier : « Tab ».
+	_skip_label.text = "Maintiens" if gamepad else "Maintiens Tab"
+	_skip_icon.visible = gamepad
+
+
+func _update_skip(delta: float) -> bool:
+	# Ne rien faire si le menu pause est ouvert : sinon on relancerait le jeu sous le menu.
+	var menu = GameState.get("pause_menu")
+	var holding := Input.is_key_pressed(KEY_TAB)
+	for device in Input.get_connected_joypads():
+		if Input.is_joy_button_pressed(device, JOY_BUTTON_BACK):
+			holding = true
+	if menu != null and menu.is_open:
+		holding = false
+	_skip_hold = _skip_hold + delta if holding else 0.0
+	_skip_bar.value = _skip_hold
+	_skip_bar.modulate.a = 1.0 if holding else 0.0
+	if _skip_hold >= SKIP_HOLD_TIME:
+		_finish()
+		return true
+	return false
 
 
 func _enter_explanation(next_step: Step) -> void:
@@ -128,6 +201,7 @@ func _refresh_instruction_text() -> void:
 	var gamepad: bool = GameState.input_device == GameState.DEVICE_XBOX
 	dialogue_label.text = GAMEPAD_INSTRUCTIONS[step] if gamepad else INSTRUCTIONS[step]
 	rhythm.using_gamepad = gamepad
+	_refresh_skip_text()
 	rhythm.queue_redraw()
 	if phase == Phase.EXPLANATION:
 		dialogue_hint.text = "Manette : A pour continuer" if gamepad else "Clavier / souris : Clic Gauche pour continuer"
@@ -192,7 +266,9 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if phase != Phase.DONE and _update_skip(delta):
+		return
 	match phase:
 		Phase.EXPLANATION:
 			if _controls_released():
