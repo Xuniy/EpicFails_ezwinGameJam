@@ -4,11 +4,17 @@ const BULLET_SCENE = preload("res://scences/bullet.tscn")
 
 @export var fire_interval: float = 0.14
 @export var base_flip_v: bool = true
+## Les particules sont dessinées centrées sur leur point d'apparition : on les avance
+## dans l'axe du tir pour que l'arrière du flash commence pile au bout du canon.
+@export var flash_forward_offset: float = 14.0
+@export var sparks_forward_offset: float = 5.0
 
 @onready var muzzle1: Marker2D = $Sortie_balle_1
 @onready var muzzle2: Marker2D = $Sortie_balle_2
 @onready var weapon_sprite: AnimatedSprite2D = $arme_qui_tire
 @onready var idle_sprite: Sprite2D = $arme_tire_pas
+@onready var muzzle_sparks: CPUParticles2D = $CPUParticles2D
+@onready var muzzle_flash: CPUParticles2D = $FlashTir
 
 var cooldown: float = 0.0
 var last_aim_direction: Vector2 = Vector2.RIGHT
@@ -72,9 +78,13 @@ func _physics_process(delta: float) -> void:
 func shoot() -> void:
 	var bullet = BULLET_SCENE.instantiate()
 	get_tree().current_scene.add_child(bullet)
-	if (weapon_sprite.flip_v):
-		bullet.global_position = muzzle2.global_position
-	else :
-		bullet.global_position = muzzle1.global_position
+	var muzzle: Marker2D = muzzle2 if weapon_sprite.flip_v else muzzle1
+	bullet.global_position = muzzle.global_position
 	bullet.direction = last_aim_direction
+	# Étincelles au bout du canon : une petite gerbe à chaque balle, sur le bon canon.
+	muzzle_sparks.global_position = muzzle.global_position + last_aim_direction * sparks_forward_offset
+	muzzle_sparks.restart()
+	# Flash bref et très lumineux, orienté dans l'axe du canon.
+	muzzle_flash.global_position = muzzle.global_position + last_aim_direction * flash_forward_offset
+	muzzle_flash.restart()
 	$"../tir_balle_son".play()
