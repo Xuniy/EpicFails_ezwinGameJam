@@ -24,6 +24,7 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 64.0
+grow_horizontal = 2
 mouse_filter = 2
 
 [node name="Portrait" type="TextureRect" parent="Speaker" unique_id=1597260181]
@@ -64,6 +65,8 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = 72.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
 [node name="Background" type="NinePatchRect" parent="Box" unique_id=1210702283]
@@ -100,18 +103,21 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 24.0
-offset_top = -52.0
-offset_right = -24.0
-offset_bottom = -30.0
+offset_left = 24.285732
+offset_top = -68.000015
+offset_right = -23.714264
+offset_bottom = -46.000015
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_font_sizes/font_size = 16
 text = "Entrée, A ou clic gauche pour continuer"
 autowrap_mode = 3
 
-[node name="ObjectiveIcon" type="TextureRect" parent="Box"]
+[node name="ObjectiveIcon" type="TextureRect" parent="Box" unique_id=1120226277]
 visible = false
 texture_filter = 1
 layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0

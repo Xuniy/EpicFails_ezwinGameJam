@@ -43,11 +43,6 @@ anchor_right = 0.94
 anchor_bottom = 0.58
 mouse_filter = 2
 
-[node name="Sprite2D" type="Sprite2D" parent="Root/Dessins" unique_id=442351949]
-position = Vector2(221.87997, 441.31995)
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("3_6d4rj")
-
 [node name="Eggceptionnal" type="Label" parent="Root/Dessins" unique_id=678255834]
 material = SubResource("ShaderMaterial_egg")
 layout_mode = 1
@@ -128,9 +123,14 @@ anchor_left = 0.5
 anchor_top = 0.75
 anchor_right = 0.5
 anchor_bottom = 0.75
-offset_left = -543.0
-offset_top = 203.20001
-offset_right = -263.0
-offset_bottom = 267.2
+offset_left = -551.0
+offset_top = 204.20001
+offset_right = -271.0
+offset_bottom = 268.2
 theme_override_font_sizes/font_size = 32
 text = "Commencer"
+
+[node name="Sprite2D" type="Sprite2D" parent="Root/Dessins/Commencer" unique_id=442351949]
+position = Vector2(243, 34)
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("3_6d4rj")

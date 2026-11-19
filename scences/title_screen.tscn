@@ -17,6 +17,12 @@ offset_bottom = 89.0
 theme_override_font_sizes/font_size = 32
 vertical_alignment = 1
 
+[node name="LowWeedMessage" parent="UI_en_sah/HUD" parent_id_path=PackedInt32Array(1396388679) index="1" unique_id=1276370576]
+visible = true
+
+[node name="FarmTilemap" parent="." index="4" unique_id=1617969760]
+position = Vector2(-1, 0)
+
 [node name="Intro" type="Node" parent="." index="6" unique_id=1665544413]
 process_mode = 3
 script = ExtResource("2_intro")
